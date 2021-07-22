@@ -1,4 +1,6 @@
+import { PubsubTopics } from "./types/general";
 
+console.log(PubsubTopics.NOTION_NEW_CONTENT);
 
 export interface IHELLO_WORLD {
     isOdd: (a: number) => boolean

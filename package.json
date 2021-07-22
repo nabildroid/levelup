@@ -5,8 +5,9 @@
   "main": "src/main.ts",
   "scripts": {
     "watch-ts": "tsc --watch",
-    "watch-node": "nodemon ./dist/src/main.js",
-    "test": "jest"
+    "watch-node": "NODE_ENV='development' nodemon ./dist/src/main.js",
+    "test": "jest",
+    "build":"tsc"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "@google-cloud/pubsub": "^2.16.1",
     "@notionhq/client": "^0.2.3",
     "express": "^4.17.1"
   }
