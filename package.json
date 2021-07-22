@@ -4,9 +4,9 @@
   "description": "learn, create, get things done, memories, and gain xps",
   "main": "src/main.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "watch-ts": "tsc --watch",
-    "watch-node": "nodemon ./dist/src/main.js"
+    "watch-node": "nodemon ./dist/src/main.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,10 +25,16 @@
   },
   "homepage": "https://github.com/nabildroid/levelup#readme",
   "devDependencies": {
+    "@babel/core": "^7.14.8",
+    "@babel/preset-env": "^7.14.8",
+    "@babel/preset-typescript": "^7.14.5",
+    "babel-jest": "^27.0.6",
+    "jest": "^27.0.6",
     "nodemon": "^2.0.12",
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "@types/jest": "^26.0.24",
     "express": "^4.17.1"
   }
 }
