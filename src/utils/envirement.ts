@@ -1,1 +1,0 @@
-export default (dev: string, prod: string) => process.env.NODE_ENV == "development" ? dev : prod;
