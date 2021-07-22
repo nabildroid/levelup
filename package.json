@@ -1,0 +1,34 @@
+{
+  "name": "levelup",
+  "version": "1.0.0",
+  "description": "learn, create, get things done, memories, and gain xps",
+  "main": "src/main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch-ts": "tsc --watch",
+    "watch-node": "nodemon ./dist/src/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nabildroid/levelup.git"
+  },
+  "keywords": [
+    "automation",
+    "notion",
+    "todoist",
+    "pocket"
+  ],
+  "author": "Nabil Lakrib",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nabildroid/levelup/issues"
+  },
+  "homepage": "https://github.com/nabildroid/levelup#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.12",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
