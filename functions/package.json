@@ -1,0 +1,47 @@
+{
+  "name": "levelup",
+  "version": "1.0.0",
+  "description": "learn, create, get things done, memories, and gain xps",
+  "main": "dist/src/main.js",
+  "scripts": {
+    "watch-ts": "tsc --watch",
+    "watch-node": "NODE_ENV='development' nodemon ./dist/src/main.js",
+    "emulators": " firebase emulators:start",
+    "test": "jest",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nabildroid/levelup.git"
+  },
+  "keywords": [
+    "automation",
+    "notion",
+    "todoist",
+    "pocket"
+  ],
+  "author": "Nabil Lakrib",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nabildroid/levelup/issues"
+  },
+  "homepage": "https://github.com/nabildroid/levelup#readme",
+  "devDependencies": {
+    "@babel/core": "^7.14.8",
+    "@babel/preset-env": "^7.14.8",
+    "@babel/preset-typescript": "^7.14.5",
+    "@types/jest": "^26.0.24",
+    "babel-jest": "^27.0.6",
+    "firebase-tools": "^9.16.0",
+    "jest": "^27.0.6",
+    "nodemon": "^2.0.12",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "firebase-admin": "^9.8.0",
+    "firebase-functions": "^3.14.1",
+    "@google-cloud/pubsub": "^2.16.1",
+    "@notionhq/client": "^0.2.3",
+    "express": "^4.17.1"
+  }
+}
