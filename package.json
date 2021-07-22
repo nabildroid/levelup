@@ -35,6 +35,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "@notionhq/client": "^0.2.3",
     "express": "^4.17.1"
   }
 }
