@@ -6,7 +6,8 @@
   "scripts": {
     "watch-ts": "tsc --watch",
     "watch-node": "NODE_ENV='development' nodemon ./dist/src/main.js",
-    "emulators": " firebase emulators:start",
+    "emulators":"firebase emulators:start",
+    "emulators-test": "firebase emulators:exec ./script.sh",
     "test": "jest",
     "build": "tsc"
   },
