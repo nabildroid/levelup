@@ -8,15 +8,16 @@ const users: { [key: string]: User } = {};
 
 export default functions.https.onRequest(async (req, res) => {
     const user = await lasyLoadUser(req.query.user as string);
-
     const notion = new Notion(user.notionAuth);
 
     const allDBs = [user.pomodoroDBID, ...user.taskDB];
 
+
+    
     allDBs.forEach(async db => {
         const isOld = await notion.checkForNewUpdate(db);
         if (isOld) {
-            pubsub.publishNewContent(db);
+            await pubsub.publishNotionUpdate(db);
         }
     });
 
@@ -31,6 +32,20 @@ const lasyLoadUser = async (user: string): Promise<User> => {
         const docRef = firestore.doc(`users/${user}`) as FirebaseFirestore.DocumentReference<User>;
 
         const doc = await docRef.get();
-        return Promise.resolve(doc.data() as User);
+        const data = doc.data();
+        if(data){
+            return Promise.resolve({
+                notionAuth:data.notionAuth,
+                pomodoroDBID:{
+                    id:data.pomodoroDBID.id,
+                    lastEdited:new Date(data.pomodoroDBID.lastEdited)
+                },
+                taskDB:data.taskDB.map(t=>({
+                    id:t.id,
+                    lastEdited:new Date(t.lastEdited)
+                }))
+            });
+        }
+        throw Error("undefined user "+user);
     }
 }
