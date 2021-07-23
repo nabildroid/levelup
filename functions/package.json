@@ -2,10 +2,10 @@
   "name": "levelup",
   "version": "1.0.0",
   "description": "learn, create, get things done, memories, and gain xps",
-  "main": "dist/src/main.js",
+  "main": "./dist/src/index.js",
   "scripts": {
     "watch-ts": "tsc --watch",
-    "watch-node": "NODE_ENV='development' nodemon ./dist/src/main.js",
+    "watch-node": "NODE_ENV='development' nodemon ./dist/src/index.js",
     "emulators":"firebase emulators:start",
     "emulators-test": "firebase emulators:exec ./script.sh",
     "test": "jest",
