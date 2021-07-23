@@ -1,25 +1,41 @@
-import { PubSub } from "@google-cloud/pubsub";
+import { PubSub, Topic } from "@google-cloud/pubsub";
+import { json } from "express";
 import { NotionDb } from "../types/notion";
-import envirement from "../utils/envirement";
+import isDev from "../utils/isDev";
+import envirement from "../utils/isDev";
 
-export interface IPubSubConnector {
-    publishNewContent: (db: NotionDb) => void,
-}
 
-export default class PubSubConnector implements IPubSubConnector {
+export default class PubSubConnector {
     private client: PubSub;
 
-    readonly PubsubTopics = {
-        NOTION_NEW_CONTENT: envirement("devTopic", "prodTopic"),
+    static createTopicName(name: string) {
+        const projectId = process.env.PROJECT_ID || "";
+        return `projects/${projectId}/topics/${name}`;
+    }
+
+    readonly pubsubTopics = {
+        NOTION_NEW_CONTENT: PubSubConnector.createTopicName("notionHasUpdated")
     }
 
     constructor(client: PubSub) {
         this.client = client;
+
+        if (isDev()) {
+            Object.values(this.pubsubTopics).forEach(async name => {
+                const topics = await this.client.getTopics();
+                if (!topics[0].some(t => t.name == name)) {
+                    this.client.createTopic(name);
+                }
+            });
+        }
     }
 
-    publishNewContent(db: NotionDb) {
-        this.client.topic(this.PubsubTopics.NOTION_NEW_CONTENT).publishJSON(
+    publishNotionUpdate(db: NotionDb) {
+        console.log("[PUBSUB] publishing new sign of change " + db.id);
+
+        return this.client.topic(this.pubsubTopics.NOTION_NEW_CONTENT).publishJSON(
             db
         );
+
     }
 }
