@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import Notion from "../connectors/notion";
-import { firestore } from "..";
+import { firestore, pubsub } from "..";
 import { User } from "../types/user";
 
 
@@ -11,10 +11,13 @@ export default functions.https.onRequest(async (req, res) => {
 
     const notion = new Notion(user.notionAuth);
 
-    const allDBs = [user.pomodoroDBID,...user.taskDB];
+    const allDBs = [user.pomodoroDBID, ...user.taskDB];
 
-    allDBs.forEach(async db=>{
-
+    allDBs.forEach(async db => {
+        const isOld = await notion.checkForNewUpdate(db);
+        if (isOld) {
+            pubsub.publishNewContent(db);
+        }
     });
 
     res.send("done");
