@@ -4,12 +4,12 @@ enum Priority {
 }
 
 interface Task {
-    id:string,
-    title:string,
-    descrption:string,
-    priority?:Priority
-    subProject?:string,
-    done:boolean,
-    pomodoros?:number,
-    created:Date;
+    parent: string,
+    id: string,
+    title: string,
+    descrption: string,
+    priority?: Priority,
+    labels: string[],
+    section?: string,
+    done: boolean,
 }
