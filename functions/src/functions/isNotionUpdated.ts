@@ -34,15 +34,12 @@ const lasyLoadUser = async (user: string): Promise<User> => {
         const data = doc.data();
         if (data) {
             return Promise.resolve({
-                notionAuth: data.notionAuth,
-                pomodoroDBID: {
-                    ...data.pomodoroDBID,
-                    lastRecentDate: new Date(data.pomodoroDBID.lastRecentDate)
-                },
-                taskDB: data.taskDB.map(t => ({
-                    ...t,
-                    lastRecentDate: new Date(t.lastRecentDate)
-                }))
+                auth: data.auth,
+                notionDB: data.notionDB.map(({ id, type, lastRecentDate }) => ({
+                    id, type,
+                    lastRecentDate: new Date(lastRecentDate)
+                })),
+                todoistLabel: data.todoistLabel
             });
         }
         throw Error("undefined user " + user);

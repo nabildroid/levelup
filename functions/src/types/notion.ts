@@ -3,6 +3,7 @@ import { Page, PaginatedList, TitlePropertyValue, RichTextPropertyValue, NumberP
 export enum NotionDbType {
     TASK = "task",
     POMODORO = "pomodoro",
+    THOUGHT ="thought",
 }
 
 export type NotionDb = {
