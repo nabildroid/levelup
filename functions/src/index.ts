@@ -21,4 +21,5 @@ if (isDev()) {
 
 
 export { default as isNotionUpdated } from "./functions/isNotionUpdated";
+export { default as todoistWebhook } from "./functions/todoistWebhook";
 

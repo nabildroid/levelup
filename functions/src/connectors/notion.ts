@@ -1,6 +1,7 @@
 import { Client } from "@notionhq/client";
 import { NotionDb, NotionServerTaskDBReponse, NotionTaskDBProperities } from "../types/notion";
-import { Priority, Task } from "../types/task";
+import { Task } from "../types/task";
+import { toPriority } from "../utils/general";
 
 export default class Notion {
     private client: Client;
@@ -32,7 +33,8 @@ export default class Notion {
             title: item.properties.title.title.map(t => t.plain_text).join(" "),
             done: item.properties.done.checkbox,
             labels: item.properties.labels.multi_select.map(s => s.name as string),
-            priority: item.properties.priority?.select.name as Priority,
+            priority: item.properties.priority.select.name
+                ? toPriority(item.properties.priority.select.name) : undefined,
         }));
 
     }
