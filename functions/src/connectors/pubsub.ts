@@ -23,9 +23,9 @@ export default class PubSubConnector {
 
         if (isDev()) {
             Object.values(this.pubsubTopics).forEach(async name => {
-                const topics = await this.client.getTopics();
-                if (!topics[0].some(t => t.name == name)) {
-                    this.client.createTopic(name);
+                const exists = await this.client.topic(name).exists();
+                if (!exists[0]) {
+                    await this.client.createTopic(name);
                 }
             });
         }
