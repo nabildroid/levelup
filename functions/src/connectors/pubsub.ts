@@ -1,5 +1,5 @@
 import { PubSub, Topic } from "@google-cloud/pubsub";
-import { PubsubDetectedEventTypeAttributes, PubsubInsertedSource, PubsubInsertTaskAttributes, PubsubValidateTaskAttributes } from "../types/pubsub";
+import { PubsubDetectedEventTypeAttributes, PubsubSources, PubsubInsertTaskAttributes, PubsubValidateTaskAttributes, PubsubDetectedEventTypeMessageType } from "../types/pubsub";
 import { Task } from "../types/task";
 import isDev from "../utils/isDev";
 
@@ -36,7 +36,7 @@ export default class PubSubConnector {
         console.log("[PUBSUB] publishing new sign of change " + task.id);
 
 
-        this.insertTask(task, PubsubInsertedSource.Notion);
+        this.insertTask(task, PubsubSources.Notion);
     }
 
     // an alternative to webhook
@@ -45,11 +45,11 @@ export default class PubSubConnector {
         console.log("[PUBSUB] publishing new sign of change " + task.id);
 
 
-        this.insertTask(task, PubsubInsertedSource.Todoist);
+        this.insertTask(task, PubsubSources.Todoist);
     }
 
     // todo use this function publicly insteam of todoistInsertTask ..
-    private insertTask(task: Task, source: PubsubInsertedSource) {
+    private insertTask(task: Task, source: PubsubSources) {
         const attribute: PubsubInsertTaskAttributes = {
             source
         };
@@ -60,8 +60,8 @@ export default class PubSubConnector {
     }
 
 
-    validateTask(task: Task, source: PubsubInsertedSource) {
-        this.log("validating "+task.id);
+    validateTask(task: Task, source: PubsubSources) {
+        this.log("validating " + task.id);
         const attribute: PubsubValidateTaskAttributes = {
             source
         }
@@ -71,14 +71,14 @@ export default class PubSubConnector {
         ).publishJSON(task, attribute);
     }
 
-    detectedEventType(task: Task, attribute: PubsubDetectedEventTypeAttributes) {
+    detectedEventType<T extends PubsubDetectedEventTypeAttributes>(data: PubsubDetectedEventTypeMessageType[T["type"]], attribute: T) {
         this.log(attribute.type);
         return this.client.topic(
             PubSubConnector.pubsubTopics.DETECTED_TASK_EVENT
-        ).publishJSON(task, attribute)
+        ).publishJSON(data, attribute)
     }
 
-    log(msg: string) {
+    private log(msg: string) {
         console.log(`[PUBSUB] ${msg}`);
     }
 }

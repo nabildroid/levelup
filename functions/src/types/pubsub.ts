@@ -1,17 +1,33 @@
-export enum PubsubInsertedSource {
+import { NTID, Task } from "./task"
+
+export enum PubsubSources {
     Notion = "notion",
-    Todoist = "todoist"
+    Todoist = "todoist",
+    Pomodoro = "pomodoro",
+    Pocket = "pocket",
 }
 
 export type PubsubInsertTaskAttributes = {
-    source: PubsubInsertedSource
+    source: PubsubSources
 }
 
 export type PubsubDetectedEventTypeAttributes = {
-    type: "new" | "update" | "complete",
-    source: PubsubInsertedSource,
+    type: keyof PubsubDetectedEventTypeMessageType,
+    source: PubsubSources,
 }
 
+
 export type PubsubValidateTaskAttributes = {
-    source: PubsubInsertedSource,
+    source: PubsubSources,
 }
+
+
+export type PubsubDetectedEventTypeMessageType = {
+    new: Task,
+    update: Task,
+    complete: NTID,
+    uncomplete: NTID,
+}
+
+
+
