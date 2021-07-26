@@ -1,9 +1,7 @@
 import { PubSub, Topic } from "@google-cloud/pubsub";
-import { json } from "express";
-import { PubsubNewUpdateSource,PubsubPublishUpdateAttribute } from "../types/general";
-import { NotionDb } from "../types/notion";
+import { PubsubNewUpdateSource, PubsubPublishUpdateAttribute } from "../types/general";
+import { Task } from "../types/task";
 import isDev from "../utils/isDev";
-import envirement from "../utils/isDev";
 
 
 export default class PubSubConnector {
@@ -14,7 +12,7 @@ export default class PubSubConnector {
         return `projects/${projectId}/topics/${name}`;
     }
 
-    readonly pubsubTopics = {
+    static readonly pubsubTopics = {
         NOTION_NEW_CONTENT: PubSubConnector.createTopicName("notionHasUpdated")
     }
 
@@ -22,7 +20,7 @@ export default class PubSubConnector {
         this.client = client;
 
         if (isDev()) {
-            Object.values(this.pubsubTopics).forEach(async name => {
+            Object.values(PubSubConnector.pubsubTopics).forEach(async name => {
                 const exists = await this.client.topic(name).exists();
                 if (!exists[0]) {
                     await this.client.createTopic(name);
@@ -34,16 +32,26 @@ export default class PubSubConnector {
     publishNotionUpdate(task: Task) {
         console.log("[PUBSUB] publishing new sign of change " + task.id);
 
-    
-        this.publishUpdate(task,PubsubNewUpdateSource.Notion);    
+
+        this.publishUpdate(task, PubsubNewUpdateSource.Notion);
     }
 
-    publishUpdate(task:Task,source: PubsubNewUpdateSource){
-        const attribute:PubsubPublishUpdateAttribute = {
-            from:source
+    // an alternative to webhook
+    // https://www.notion.so/laknabil/FC-isTodoistUpdated-475aa250f1724f59ac1b98b9a66389df
+    publishTodoistUpdate(task: Task) {
+        console.log("[PUBSUB] publishing new sign of change " + task.id);
+
+
+        this.publishUpdate(task, PubsubNewUpdateSource.Todoist);
+    }
+
+    publishUpdate(task: Task, source: PubsubNewUpdateSource) {
+        const attribute: PubsubPublishUpdateAttribute = {
+            from: source
         };
 
-        return this.client.topic(this.pubsubTopics.NOTION_NEW_CONTENT)
-            .publishJSON(task,attribute);
+        return this.client.topic(
+            PubSubConnector.pubsubTopics.NOTION_NEW_CONTENT
+        ).publishJSON(task, attribute);
     }
 }
