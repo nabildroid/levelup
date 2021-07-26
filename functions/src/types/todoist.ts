@@ -12,6 +12,7 @@ export type TodoistWebhook = {
     event_name: TodoistWebhookType,
     user_id: number,
     event_data: {
+        id: number,
         priority: string,
         content: string,
         project_id: number, // need DB to evaluate
