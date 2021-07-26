@@ -60,5 +60,5 @@ function generateRandomNTID(): NTID {
     const randA = Math.random().toString().slice(2);
     const randB = Math.random().toString().slice(2);
 
-    return `${randA}_${randB}`;
+    return [randA, randB];
 }

@@ -18,8 +18,8 @@ export default functions.https.onRequest(async (req, res) => {
                 updatedNotionTasks.forEach(
                     ({ done, id, priority, labels, parent, title, section }) =>
                         pubsub.publishNotionUpdate({
-                            parent: `${parent}_`,
-                            id: `${id}_`,
+                            parent: [parent],
+                            id: [id],
                             done,
                             priority,
                             labels,
