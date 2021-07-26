@@ -1,41 +1,28 @@
 import { NotionDbType } from "../types/notion";
-import { CompleteTask, NTID, TaskAssociation } from "../types/task";
+import { StoredTask, NTID } from "../types/task";
 
 export default (db: FirebaseFirestore.Firestore) => {
     console.log(process.env.NOTION_TOKEN);
     const user = "nabil";
     const userPath = `/users/${user}`;
-    const completedTaskPath = `/completedTasks/`;
-    const taskAssociationPath = `/taskAssociation/`;
+    const taskPath = `/tasks/`;
 
     db.doc(userPath).set(createUser());
 
     Array(10)
         .fill(null)
-        .map(createCompletedTask)
-        .forEach(({ id, user }) =>
-            db.collection(completedTaskPath + id).add({ user })
+        .map(createStoredTask)
+        .forEach((task) =>
+            db.collection(taskPath).add(task)
         );
 
-    Array(10)
-        .fill(null)
-        .map(createTaskAssociation)
-        .forEach(({ id }) =>
-            db.collection(taskAssociationPath + id).add({ user })
-        );
 };
 
-function createTaskAssociation(): TaskAssociation {
+function createStoredTask(): StoredTask {
     return {
         id: generateRandomNTID(),
         user: "nabil",
-    };
-}
-
-function createCompletedTask(): CompleteTask {
-    return {
-        id: generateRandomNTID(),
-        user: "nabil",
+        completed: Math.random() > 10,
     };
 }
 
