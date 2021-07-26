@@ -1,16 +1,21 @@
 import { Client } from "@notionhq/client";
-import { NotionDb, NotionServerTaskDBReponse, NotionTaskDBProperities } from "../types/notion";
-import { Task } from "../types/task";
+import { NotionDb, NotionDbType, NotionServerTaskDBReponse, NotionTask, NotionTaskPage } from "../types/notion";
 import { toPriority } from "../utils/general";
 
-export default class Notion {
+export interface INotion {
+    checkForNewTask: (db: NotionDb) => Promise<NotionTask[]>
+}
+
+export default class Notion  implements INotion{
     private client: Client;
 
     constructor(auth: string) {
         this.client = new Client({ auth });
     }
 
-    async checkForNewUpdate(db: NotionDb): Promise<Task[]> {
+    async checkForNewTask(db: NotionDb): Promise<NotionTask[]> {
+        if (db.type != NotionDbType.TASK)
+            throw Error(`${db.id} is not of type Tasks`)
 
         const database = await this.client.databases.query({
             database_id: db.id,
@@ -18,7 +23,7 @@ export default class Notion {
             {
                 or: [
                     {
-                        property: ("last_edited") as NotionTaskDBProperities,
+                        property: "last_edited",
                         date: {
                             after: db.lastRecentDate.toISOString(),
                         }
@@ -27,15 +32,23 @@ export default class Notion {
             }
         }) as NotionServerTaskDBReponse;
 
-        return database.results.map(item => ({
-            id: item.id,
-            parent: db.id,
-            title: item.properties.title.title.map(t => t.plain_text).join(" "),
-            done: item.properties.done.checkbox,
-            labels: item.properties.labels.multi_select.map(s => s.name as string),
-            priority: item.properties.priority.select.name
-                ? toPriority(item.properties.priority.select.name) : undefined,
-        }));
+        // todo returns NotionServerTaskDBReponse but it should be flaten 
+        return database.results.map(
+            page => Notion.convertNotionTaskPageToNotionTask(page, db)
+        );
+    }
 
+    static convertNotionTaskPageToNotionTask(task: NotionTaskPage, db: NotionDb): NotionTask {
+        return ({
+            id: task.id,
+            parent: db.id,
+            title: task.properties.title.title.map(t => t.plain_text).join(" "),
+            done: task.properties.done.checkbox,
+            labels: task.properties.labels.multi_select.map(s => s.name as string),
+            priority: task.properties.priority.select.name
+                ? toPriority(task.properties.priority.select.name) : undefined,
+            last_edited: new Date(task.properties.last_edited.last_edited_time),
+            section: task.properties.section.select.name
+        })
     }
 }

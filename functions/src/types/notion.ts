@@ -1,9 +1,10 @@
 import { Page, PaginatedList, TitlePropertyValue, RichTextPropertyValue, NumberPropertyValue, SelectPropertyValue, MultiSelectPropertyValue, DatePropertyValue, FormulaPropertyValue, RollupPropertyValue, PeoplePropertyValue, FilesPropertyValue, CheckboxPropertyValue, URLPropertyValue, EmailPropertyValue, PhoneNumberPropertyValue, CreatedTimePropertyValue, CreatedByPropertyValue, LastEditedTimePropertyValue, LastEditedByPropertyValue } from "@notionhq/client/build/src/api-types";
+import { Priority } from "./task";
 
 export enum NotionDbType {
     TASK = "task",
     POMODORO = "pomodoro",
-    THOUGHT ="thought",
+    THOUGHT = "thought",
 }
 
 export type NotionDb = {
@@ -13,8 +14,18 @@ export type NotionDb = {
 }
 
 
-// todo enforce this schema on Task database
-export type NotionTaskDBProperities = keyof NotionTaskPage["properties"]
+export interface NotionTask {
+    id: string,
+    parent: string,
+    title: string,
+    priority?: Priority,
+    section?: string,
+    labels: string[],
+    done: boolean,
+    last_edited: Date
+}
+
+
 export interface NotionTaskPage extends Page {
     properties: {
         "title": TitlePropertyValue,
@@ -22,7 +33,7 @@ export interface NotionTaskPage extends Page {
         "section": SelectPropertyValue,
         "labels": MultiSelectPropertyValue,
         "done": CheckboxPropertyValue,
-        "last_edited": LastEditedByPropertyValue,
+        "last_edited": LastEditedTimePropertyValue,
     };
 }
 
