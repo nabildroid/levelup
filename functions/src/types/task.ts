@@ -36,3 +36,11 @@ export interface CompleteTask{
     id:NTID,
     user:string,
 }
+
+/**
+ * used to update Todoist if update comes from Notion or vice versa
+ * https://www.notion.so/laknabil/how-to-get-the-part-B-of-Task-id-when-we-extract-Task-from-notion-in-isNotionUpdated-04a39348d10049c2a0de26bbc75696d3
+ */
+export interface TaskAssociation {
+    id:NTID
+}
