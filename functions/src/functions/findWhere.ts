@@ -6,11 +6,13 @@ import { NTID, StoredTask, Task } from "../types/task";
 
 const { INSERT_TASK } = PubSubConnector.pubsubTopics;
 
+console.log(INSERT_TASK);
+
 export default functions.pubsub
     .topic(INSERT_TASK)
     .onPublish(async (message, context) => {
         const attribute = message.attributes as PubsubInsertTaskAttributes;
-        const data = message.json() as Task;
+        const data = message.json as Task;
 
         const storedTask = await getStoredTask(data.id);
 

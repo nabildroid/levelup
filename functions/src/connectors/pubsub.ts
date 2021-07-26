@@ -9,7 +9,7 @@ export default class PubSubConnector {
 
     static createTopicName(name: string) {
         const projectId = process.env.PROJECT_ID || "";
-        return `projects/${projectId}/topics/${name}`;
+        return `${name}`;
     }
 
     static readonly pubsubTopics = {
@@ -61,6 +61,7 @@ export default class PubSubConnector {
 
 
     validateTask(task: Task, source: PubsubInsertedSource) {
+        this.log("validating "+task.id);
         const attribute: PubsubValidateTaskAttributes = {
             source
         }
@@ -71,8 +72,13 @@ export default class PubSubConnector {
     }
 
     detectedEventType(task: Task, attribute: PubsubDetectedEventTypeAttributes) {
+        this.log(attribute.type);
         return this.client.topic(
             PubSubConnector.pubsubTopics.DETECTED_TASK_EVENT
         ).publishJSON(task, attribute)
+    }
+
+    log(msg: string) {
+        console.log(`[PUBSUB] ${msg}`);
     }
 }

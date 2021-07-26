@@ -6,7 +6,7 @@ export interface INotion {
     checkForNewTask: (db: NotionDb) => Promise<NotionTask[]>
 }
 
-export default class Notion  implements INotion{
+export default class Notion implements INotion {
     private client: Client;
 
     constructor(auth: string) {
@@ -45,10 +45,10 @@ export default class Notion  implements INotion{
             title: task.properties.title.title.map(t => t.plain_text).join(" "),
             done: task.properties.done.checkbox,
             labels: task.properties.labels.multi_select.map(s => s.name as string),
-            priority: task.properties.priority.select.name
+            priority: task.properties.priority?.select.name
                 ? toPriority(task.properties.priority.select.name) : undefined,
             last_edited: new Date(task.properties.last_edited.last_edited_time),
-            section: task.properties.section.select.name
+            section: task.properties.section?.select.name
         })
     }
 }
