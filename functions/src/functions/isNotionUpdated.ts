@@ -17,7 +17,7 @@ export default functions.https.onRequest(async (req, res) => {
 
                 updatedNotionTasks.forEach(
                     ({ done, id, priority, labels, parent, title, section }) =>
-                        pubsub.publishNotionUpdate({
+                        pubsub.notionInsertTask({
                             parent: [parent],
                             id: [id],
                             done,
