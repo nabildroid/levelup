@@ -5,8 +5,8 @@ export default (db: FirebaseFirestore.Firestore) => {
     console.log(process.env.NOTION_TOKEN);
     const user = "nabil";
     const userPath = `/users/${user}`;
-    const completedTaskPath = `/users/${user}/completedTasks/`;
-    const taskAssociationPath = `/users/${user}/taskAssociation/`;
+    const completedTaskPath = `/completedTasks/`;
+    const taskAssociationPath = `/taskAssociation/`;
 
     db.doc(userPath).set(createUser());
 
@@ -14,25 +14,28 @@ export default (db: FirebaseFirestore.Firestore) => {
         .fill(null)
         .map(createCompletedTask)
         .forEach(({ id, user }) =>
-            db.collection(completedTaskPath).add({ id, user })
+            db.collection(completedTaskPath + id).add({ user })
         );
 
     Array(10)
         .fill(null)
         .map(createTaskAssociation)
-        .forEach(({ id }) => db.collection(taskAssociationPath).add({ id }));
+        .forEach(({ id }) =>
+            db.collection(taskAssociationPath + id).add({ user })
+        );
 };
 
 function createTaskAssociation(): TaskAssociation {
     return {
         id: generateRandomNTID(),
+        user: "nabil",
     };
 }
 
 function createCompletedTask(): CompleteTask {
     return {
         id: generateRandomNTID(),
-        user: "hello world",
+        user: "nabil",
     };
 }
 
