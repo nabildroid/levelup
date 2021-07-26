@@ -1,5 +1,5 @@
 import { PubSub, Topic } from "@google-cloud/pubsub";
-import { PubsubNewUpdateSource, PubsubPublishUpdateAttribute } from "../types/general";
+import { PubsubDetectedEventTypeAttributes, PubsubInsertedSource, PubsubInsertTaskAttributes, PubsubValidateTaskAttributes } from "../types/pubsub";
 import { Task } from "../types/task";
 import isDev from "../utils/isDev";
 
@@ -13,7 +13,10 @@ export default class PubSubConnector {
     }
 
     static readonly pubsubTopics = {
-        NOTION_NEW_CONTENT: PubSubConnector.createTopicName("notionHasUpdated")
+        INSERT_TASK: PubSubConnector.createTopicName("insert_task"),
+        DETECTED_TASK_EVENT: PubSubConnector.createTopicName("detected_task_event"),
+        VALIDATE_TASK: PubSubConnector.createTopicName("validate_task"),
+
     }
 
     constructor(client: PubSub) {
@@ -29,29 +32,47 @@ export default class PubSubConnector {
         }
     }
 
-    publishNotionUpdate(task: Task) {
+    notionInsertTask(task: Task) {
         console.log("[PUBSUB] publishing new sign of change " + task.id);
 
 
-        this.publishUpdate(task, PubsubNewUpdateSource.Notion);
+        this.insertTask(task, PubsubInsertedSource.Notion);
     }
 
     // an alternative to webhook
     // https://www.notion.so/laknabil/FC-isTodoistUpdated-475aa250f1724f59ac1b98b9a66389df
-    publishTodoistUpdate(task: Task) {
+    todoistInsertTask(task: Task) {
         console.log("[PUBSUB] publishing new sign of change " + task.id);
 
 
-        this.publishUpdate(task, PubsubNewUpdateSource.Todoist);
+        this.insertTask(task, PubsubInsertedSource.Todoist);
     }
 
-    publishUpdate(task: Task, source: PubsubNewUpdateSource) {
-        const attribute: PubsubPublishUpdateAttribute = {
-            from: source
+    // todo use this function publicly insteam of todoistInsertTask ..
+    private insertTask(task: Task, source: PubsubInsertedSource) {
+        const attribute: PubsubInsertTaskAttributes = {
+            source
         };
 
         return this.client.topic(
-            PubSubConnector.pubsubTopics.NOTION_NEW_CONTENT
+            PubSubConnector.pubsubTopics.INSERT_TASK
         ).publishJSON(task, attribute);
+    }
+
+
+    validateTask(task: Task, source: PubsubInsertedSource) {
+        const attribute: PubsubValidateTaskAttributes = {
+            source
+        }
+
+        return this.client.topic(
+            PubSubConnector.pubsubTopics.VALIDATE_TASK
+        ).publishJSON(task, attribute);
+    }
+
+    detectedEventType(task: Task, attribute: PubsubDetectedEventTypeAttributes) {
+        return this.client.topic(
+            PubSubConnector.pubsubTopics.DETECTED_TASK_EVENT
+        ).publishJSON(task, attribute)
     }
 }
