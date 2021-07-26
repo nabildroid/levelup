@@ -4,7 +4,7 @@ export enum TodoistWebhookType {
     UpdatedTask = "item:updated",
     DeletedTask = "item:deleted",
     CompletedTask = "item:completed",
-    IncompletedTask = "item:uncompleted",
+    UncompletedTask = "item:uncompleted", // todo fix the typo
 }
 
 
@@ -14,9 +14,9 @@ export type TodoistWebhook = {
     event_data: {
         priority: string,
         content: string,
-        project_id?: number,
-        section_id?: number,
+        project_id?: number, // need DB to evaluate
+        section_id?: number, // need DB to evaluate
         checked: boolean,
-        labels: string[],
+        labels: string[], // need DB to evaluate
     }
 }
