@@ -1,27 +1,25 @@
-
 export enum Priority {
-    P1 = "P1", P2 = "P2", P3 = "P3", P4 = "P4",
+    P1 = "P1",
+    P2 = "P2",
+    P3 = "P3",
+    P4 = "P4",
 }
-
-
-type NotionID = string;
-type TodoistID = string;
 
 /**
  * Notion ID composed with Todoist ID
  */
 export type NTID = [string, string?];
 
-// the only data that circulate within the pubsub 
+// the only data that circulate within the pubsub
 export interface Task {
-    parent: NTID, // composed ID (notion_todoist)
-    id: NTID, // composed ID (notion_todoist)
-    title: string, 
-    descrption?: string,
-    priority?: Priority,
-    labels: string[],
-    section?: string,
-    done: boolean,
+    parent: NTID; // composed ID (notion_todoist)
+    id: NTID; // composed ID (notion_todoist)
+    title: string;
+    descrption?: string;
+    priority?: Priority;
+    labels: string[];
+    section?: string;
+    done: boolean;
 }
 
 /**
