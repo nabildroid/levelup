@@ -1,8 +1,9 @@
 import * as functions from "firebase-functions";
-import { firestore, pubsub } from "..";
+import { pubsub } from "..";
+import Firestore from "../connectors/firestore";
 import PubSubConnector from "../connectors/pubsub";
 import { PubsubInsertTaskAttributes } from "../types/pubsub";
-import { NTID, StoredTask, Task } from "../types/task";
+import { Task } from "../types/task";
 
 const { INSERT_TASK } = PubSubConnector.pubsubTopics;
 
@@ -14,7 +15,7 @@ export default functions.pubsub
         const attribute = message.attributes as PubsubInsertTaskAttributes;
         const data = message.json as Task;
 
-        const storedTask = await getStoredTask(data.id);
+        const storedTask = await Firestore.getStoredTask(data.id);
 
         if (!storedTask) {
             pubsub.detectedEventType(data, {
@@ -37,11 +38,3 @@ export default functions.pubsub
 
 
 
-
-const getStoredTask = async (id: NTID): Promise<StoredTask | undefined> => {
-    const ref = firestore.collection("/tasks")
-        .where("id", "array-contains-any", id).limit(1);
-    const query = await ref.get();
-
-    return query.docs[0]?.data() as StoredTask;
-}
