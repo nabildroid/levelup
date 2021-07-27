@@ -22,7 +22,7 @@ export interface NotionTask {
     section?: string,
     labels: string[],
     done: boolean,
-    last_edited: Date
+    last_edited?: Date
 }
 
 

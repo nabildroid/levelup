@@ -34,4 +34,13 @@ export default class Firestore {
 
         return query.docs[0]?.data() as StoredTask;
     }
+
+    static saveNewTask = async (id: NTID, user: string) => {
+        const task: StoredTask = {
+            id, user,
+            completed: false
+        }
+        
+        firestore.collection("/tasks").add(task);
+    }
 }

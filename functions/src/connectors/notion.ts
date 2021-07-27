@@ -1,4 +1,5 @@
 import { Client } from "@notionhq/client";
+import { InputPropertyValue } from "@notionhq/client/build/src/api-types";
 import { NotionDb, NotionDbType, NotionServerTaskDBReponse, NotionTask, NotionTaskPage } from "../types/notion";
 import { toPriority } from "../utils/general";
 
@@ -6,11 +7,57 @@ export interface INotion {
     checkForNewTask: (db: NotionDb) => Promise<NotionTask[]>
 }
 
+
+
 export default class Notion implements INotion {
     private client: Client;
 
     constructor(auth: string) {
         this.client = new Client({ auth });
+
+    }
+
+    private createItem(item: { [key: string]: InputPropertyValue }, database_id: string) {
+        return this.client.pages.create({
+            parent: {
+                database_id
+            },
+            properties: item
+        })
+    }
+
+
+
+    async createTask(task: NotionTask) {
+        return this.createItem({
+            priority: {
+                type: "select",
+                select: { name: task.priority as string }
+            },
+            section: {
+                type: "select",
+                select: { name: task.section as string }
+            },
+            labels: {
+                type: "multi_select",
+                multi_select: task.labels.map(l => ({ name: l }))
+            },
+            done: {
+                type: "checkbox",
+                checkbox: false
+            },
+            title: {
+                type: "title",
+                title: [
+                    {
+                        type: "text",
+                        text: {
+                            content: 'Tuscan Kale',
+                        },
+                    },
+                ],
+            }
+        }, task.parent);
     }
 
     async checkForNewTask(db: NotionDb): Promise<NotionTask[]> {
