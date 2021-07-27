@@ -11,7 +11,7 @@ export default functions.pubsub
     .topic(VALIDATE_TASK)
     .onPublish(async (message, context) => {
         const attribute = message.attributes as PubsubValidateTaskAttributes;
-        const id = message.json as NTID
+        const { id } = message.json as { id: NTID }
 
         const isValide = await stillRemainingPomodoros(id);
 
