@@ -26,6 +26,9 @@ export default class Notion implements INotion {
         })
     }
 
+    async updateTask(task: Partial<NotionTask> & { id: string }){
+        
+    }
 
 
     async createTask(task: NotionTask) {

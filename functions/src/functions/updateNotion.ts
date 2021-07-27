@@ -28,19 +28,24 @@ export default functions.https.onRequest(async (req, res) => {
 
 
         const task = body as Task;
-
         if (task.labels && attributes.source == PubsubSources.Todoist) {
             task.labels = translateTodoistLabels(user, task.labels);
         }
 
+        let last_edited_time: string;
+
         if (attributes.type == "new") {
             const fullNTID = getFullNTID(user, task.parent)
-            return handleNewTask({
+            last_edited_time = await handleNewTask({
                 ...task,
                 parent: fullNTID
             }, "nabil", notion);
         }
-        else return handleUpdateTask(task, notion);
+        else {
+            last_edited_time = await handleUpdateTask(task, notion);
+        }
+
+        // todo save back last_edited_time in the user
     }
 
 
@@ -49,7 +54,7 @@ export default functions.https.onRequest(async (req, res) => {
 // required the parent ID
 const handleNewTask = async (task: Task, user: string, notion: Notion) => {
 
-    const parentId = (task.parent[0].length > 30 ? task.parent[0] : task.parent[1]) as string;
+    const parentId = extractNotionIdfromNTID(task.parent);
 
     const response = await notion.createTask({
         ...task,
@@ -57,15 +62,26 @@ const handleNewTask = async (task: Task, user: string, notion: Notion) => {
         id: task.id[0], // todo useless information
     });
 
-    
+
     // todo  response.last_edited_time must be saved withing the user stuff!
 
     await Firestore.saveNewTask([task.id[0], response.id], user);
+
+    return response.last_edited_time;
 }
 
 // todo remove Notion dependency from arguments
 const handleUpdateTask = async (task: Partial<Task> & { id: NTID }, notion: Notion) => {
 
+    const id = extractNotionIdfromNTID(task.id);
+
+    const response = await notion.updateTask({
+        ...task,
+        id,
+        parent: undefined
+    });
+
+    return response.last_edited_time;
 }
 
 
@@ -100,4 +116,8 @@ const getFullNTID = (user: User, id: NTID): NTID => {
     }
 
     return [firstId, secondId]
+}
+
+const extractNotionIdfromNTID = (id: NTID) => {
+    return (id[0].length > 30 ? id[0] : id[1]) as string;
 }
