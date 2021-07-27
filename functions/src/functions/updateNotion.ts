@@ -30,10 +30,15 @@ export default functions.https.onRequest(async (req, res) => {
 
 
         const task = body as Task;
+
         if (task.labels && attributes.source == PubsubSources.Todoist) {
             task.labels = translateTodoistLabels(user, task.labels);
         }
 
+        if (extractNotionIdfromNTID(task.id) == undefined) {
+            const storedTask = await Firestore.getStoredTask(task.id);
+            task.id[1] = storedTask?.id[1];
+        }
 
         if (attributes.type == "new") {
             const fullNTID = getFullNTID(user, task.parent)
@@ -57,7 +62,7 @@ export default functions.https.onRequest(async (req, res) => {
 // required the parent ID
 const handleNewTask = async (task: Task, user: string, notion: Notion) => {
 
-    const parentId = extractNotionIdfromNTID(task.parent);
+    const parentId = extractNotionIdfromNTID(task.parent) as string;
 
     const response = await notion.createTask({
         ...task,
@@ -76,7 +81,7 @@ const handleNewTask = async (task: Task, user: string, notion: Notion) => {
 // todo remove Notion dependency from arguments
 const handleUpdateTask = async (task: Partial<Task> & { id: NTID }, notion: Notion) => {
 
-    const id = extractNotionIdfromNTID(task.id);
+    const id = extractNotionIdfromNTID(task.id) as string;
 
     const response = await notion.updateTask({
         ...task,
@@ -122,5 +127,5 @@ const getFullNTID = (user: User, id: NTID): NTID => {
 }
 
 const extractNotionIdfromNTID = (id: NTID) => {
-    return (id[0].length > 30 ? id[0] : id[1]) as string;
+    return (id[0].length > 30 ? id[0] : id[1]);
 }
