@@ -43,6 +43,11 @@ function createUser() {
             15364521: "LabelA",
             15364561: "LabelB",
         }, // translating labels&section from id to string and vice versa
+        todoistProjects: [
+            [1525221, "a29912913c7a4357a43938f0f6f0ccf5"],
+            [1525221, "a29912913c7a4357a43938f0f6f0ccf5"],
+            [1525221, "a29912913c7a4357a43938f0f6f0ccf5"]
+        ]
     };
 }
 
