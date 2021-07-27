@@ -17,10 +17,12 @@ export default functions.https.onRequest(async (req, res) => {
     // todo use User.todoistProject to find the right userId
     const user = await Firestore.lazyLoadUser("nabil")
     const notion = new Notion(user.auth.notion);
+    let last_edited_time: string;
+
 
     if (attributes.type == "complete" || attributes.type == "uncomplete") {
         const { id } = body as { id: NTID };
-        return handleUpdateTask({
+        last_edited_time = await handleUpdateTask({
             id,
             done: attributes.type == "complete"
         }, notion)
@@ -32,7 +34,6 @@ export default functions.https.onRequest(async (req, res) => {
             task.labels = translateTodoistLabels(user, task.labels);
         }
 
-        let last_edited_time: string;
 
         if (attributes.type == "new") {
             const fullNTID = getFullNTID(user, task.parent)
@@ -45,9 +46,11 @@ export default functions.https.onRequest(async (req, res) => {
             last_edited_time = await handleUpdateTask(task, notion);
         }
 
-        // todo save back last_edited_time in the user
     }
 
+    // todo save back last_edited_time in the user
+
+    res.send("done");
 
 });
 
