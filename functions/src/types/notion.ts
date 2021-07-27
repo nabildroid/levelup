@@ -37,6 +37,6 @@ export interface NotionTaskPage extends Page {
     };
 }
 
+export type NotionUpdateTaskPage = Omit<NotionTaskPage, "properties"> & { properties: Partial<NotionTaskPage["properties"]> }
+
 export interface NotionServerTaskDBReponse extends PaginatedList<NotionTaskPage> { }
-
-

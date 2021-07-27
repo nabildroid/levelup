@@ -1,4 +1,5 @@
 import { Client } from "@notionhq/client";
+import { InputPropertyValueMap } from "@notionhq/client/build/src/api-endpoints";
 import { InputPropertyValue } from "@notionhq/client/build/src/api-types";
 import { NotionDb, NotionDbType, NotionServerTaskDBReponse, NotionTask, NotionTaskPage } from "../types/notion";
 import { toPriority } from "../utils/general";
@@ -26,41 +27,18 @@ export default class Notion implements INotion {
         })
     }
 
-    async updateTask(task: Partial<NotionTask> & { id: string }){
-        
+    async updateTask(task: Partial<NotionTask> & { id: string }) {
+        return this.client.pages.update({
+            page_id: task.id,
+            properties: Notion.convertNotionTaskToNotionTaskPage(task),
+            archived: false,
+        })
     }
 
 
     async createTask(task: NotionTask) {
-        return this.createItem({
-            priority: {
-                type: "select",
-                select: { name: task.priority as string }
-            },
-            section: {
-                type: "select",
-                select: { name: task.section as string }
-            },
-            labels: {
-                type: "multi_select",
-                multi_select: task.labels.map(l => ({ name: l }))
-            },
-            done: {
-                type: "checkbox",
-                checkbox: false
-            },
-            title: {
-                type: "title",
-                title: [
-                    {
-                        type: "text",
-                        text: {
-                            content: 'Tuscan Kale',
-                        },
-                    },
-                ],
-            }
-        }, task.parent);
+        // todo needs refactoring someting like that convertNotionTaskPageToNotionTask
+        return this.createItem(Notion.convertNotionTaskToNotionTaskPage(task), task.parent);
     }
 
     async checkForNewTask(db: NotionDb): Promise<NotionTask[]> {
@@ -100,5 +78,60 @@ export default class Notion implements INotion {
             last_edited: new Date(task.properties.last_edited.last_edited_time),
             section: task.properties.section?.select.name
         })
+    }
+
+    static convertNotionTaskToNotionTaskPage(task: Partial<NotionTask>) {
+
+        type NotionTaskProperities = keyof NotionTask;
+        const properties: InputPropertyValueMap = {};
+
+
+        Object.keys(task).forEach(key => {
+            // todo use if statement better then the switch
+            switch (key as NotionTaskProperities) {
+                case "title":
+                    properties["title"] = {
+                        type: "title",
+                        title: [
+                            {
+                                type: "text",
+                                text: { content: task.title as string },
+                            },
+                        ],
+                    }
+                    break;
+                case "labels":
+                    properties["labels"] = {
+                        type: "multi_select",
+                        multi_select: (task.labels as string[]).map(l => ({ name: l }))
+                    }
+                    break;
+
+                case "priority":
+                    properties["priority"] = {
+                        type: "select",
+                        select: { name: task.priority as string }
+                    }
+                    break;
+
+                case "section":
+                    properties["section"] = {
+                        type: "select",
+                        select: { name: task.section as string }
+                    }
+                    break;
+
+                case "done":
+                    properties["done"] = {
+                        type: "checkbox",
+                        checkbox: task.done as boolean
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        })
+        return properties;
     }
 }
