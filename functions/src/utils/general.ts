@@ -11,3 +11,11 @@ export const toPriority = (priority: string | number | undefined): Priority => {
         return Priority.P2
     else return Priority.P3
 }
+
+export const nestedArrayToObject = (arr: any[][]) => {
+    return arr.reduce((out, val, index) => Object.assign(out, { [index]: val }), {});
+}
+
+export const objectToNestedArray = (obj: { [key: number]: any[] }) => {
+    return Object.values(obj).reduce((arr, val) => [...arr, val], []);
+}

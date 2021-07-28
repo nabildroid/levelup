@@ -1,20 +1,17 @@
+import FirestoreConnector from "../connectors/firestore";
 import { NotionDbType } from "../types/notion";
 import { StoredTask, NTID } from "../types/task";
+import { User } from "../types/user";
 
-export default (db: FirebaseFirestore.Firestore) => {
+export default async (db: FirestoreConnector) => {
     console.log(process.env.NOTION_TOKEN);
-    const user = "nabil";
-    const userPath = `/users/${user}`;
-    const taskPath = `/tasks/`;
 
-    db.doc(userPath).set(createUser());
+    await db.createUser(createUser());
 
     Array(10)
         .fill(null)
         .map(createStoredTask)
-        .forEach((task) =>
-            db.collection(taskPath).add(task)
-        );
+        .forEach(task => db.saveNewTask(task.id, task.user));
 
 };
 
@@ -26,7 +23,7 @@ function createStoredTask(): StoredTask {
     };
 }
 
-function createUser() {
+export function createUser(): User {
     return {
         auth: {
             notion: process.env.NOTION_TOKEN || "auth token",
@@ -36,7 +33,7 @@ function createUser() {
             {
                 id: "a29912913c7a4357a43938f0f6f0ccf5",
                 type: NotionDbType.TASK,
-                lastRecentDate: "2020-03-17T21:49:37.913Z",
+                lastRecentDate: new Date("2020-03-17T21:49:37.913Z"),
             },
         ],
         todoistLabel: {
@@ -44,9 +41,9 @@ function createUser() {
             15364561: "LabelB",
         }, // translating labels&section from id to string and vice versa
         todoistProjects: [
-            [1525221, "a29912913c7a4357a43938f0f6f0ccf5"],
-            [1525221, "a29912913c7a4357a43938f0f6f0ccf5"],
-            [1525221, "a29912913c7a4357a43938f0f6f0ccf5"]
+            ["1525221", "a29912913c7a4357a43938f0f6f0ccf5"],
+            ["1525221", "a29912913c7a4357a43938f0f6f0ccf5"],
+            ["1525221", "a29912913c7a4357a43938f0f6f0ccf5"]
         ]
     };
 }

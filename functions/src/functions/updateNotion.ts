@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import Firestore from "../connectors/firestore";
+import {firestore} from "..";
 import Notion from "../connectors/notion";
 import { NotionDbType } from "../types/notion";
 import { PubsubDetectedEventTypeAttributes, PubsubSources } from "../types/pubsub";
@@ -15,7 +15,7 @@ export default functions.https.onRequest(async (req, res) => {
     const body = req.body as { id: NTID } | Task;
 
     // todo use User.todoistProject to find the right userId
-    const user = await Firestore.lazyLoadUser("nabil")
+    const user = await firestore.lazyLoadUser("nabil")
     const notion = new Notion(user.auth.notion);
     let last_edited_time: string;
 
@@ -36,7 +36,7 @@ export default functions.https.onRequest(async (req, res) => {
         }
 
         if (extractNotionIdfromNTID(task.id) == undefined) {
-            const storedTask = await Firestore.getStoredTask(task.id);
+            const storedTask = await firestore.getStoredTask(task.id);
             task.id[1] = storedTask?.id[1];
         }
 
@@ -73,7 +73,7 @@ const handleNewTask = async (task: Task, user: string, notion: Notion) => {
 
     // todo  response.last_edited_time must be saved withing the user stuff!
 
-    await Firestore.saveNewTask([task.id[0], response.id], user);
+    await firestore.saveNewTask([task.id[0], response.id], user);
 
     return response.last_edited_time;
 }
@@ -95,14 +95,14 @@ const handleUpdateTask = async (task: Partial<Task> & { id: NTID }, notion: Noti
 
 
 
-const translateTodoistLabels = (user: User, labels: string[]) => {
+export const translateTodoistLabels = (user: User, labels: string[]) => {
     return labels.map(label =>
         user.todoistLabel[parseInt(label)]
     )
 }
 
 
-const getFullNTID = (user: User, id: NTID): NTID => {
+export const getFullNTID = (user: User, id: NTID): NTID => {
 
     const { todoistProjects } = user;
 
@@ -126,6 +126,6 @@ const getFullNTID = (user: User, id: NTID): NTID => {
     return [firstId, secondId]
 }
 
-const extractNotionIdfromNTID = (id: NTID) => {
+export const extractNotionIdfromNTID = (id: NTID) => {
     return (id[0].length > 30 ? id[0] : id[1]);
 }

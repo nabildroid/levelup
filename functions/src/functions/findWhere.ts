@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import { pubsub } from "..";
-import Firestore from "../connectors/firestore";
+import {firestore} from "..";
 import PubSubConnector from "../connectors/pubsub";
 import { PubsubInsertTaskAttributes } from "../types/pubsub";
 import { Task } from "../types/task";
@@ -15,7 +15,7 @@ export default functions.pubsub
         const attribute = message.attributes as PubsubInsertTaskAttributes;
         const data = message.json as Task;
 
-        const storedTask = await Firestore.getStoredTask(data.id);
+        const storedTask = await firestore.getStoredTask(data.id);
 
         if (!storedTask) {
             pubsub.detectedEventType(data, {
