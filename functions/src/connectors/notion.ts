@@ -53,7 +53,7 @@ export default class Notion implements INotion {
                     {
                         property: "last_edited",
                         date: {
-                            after: db.lastRecentDate.toISOString(),
+                            on_or_after:db.lastRecentDate.toISOString(),
                         }
                     }
                 ]
