@@ -9,7 +9,8 @@
     "emulators": "NODE_ENV='development' PROJECT_ID='rewarded-automation' firebase emulators:start",
     "emulators-test": "firebase emulators:exec ./script.sh",
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "watch-test": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "firebase-tools": "^9.16.0",
     "jest": "^27.0.6",
     "nodemon": "^2.0.12",
+    "ts-jest": "^27.0.4",
     "typescript": "^4.3.5"
   },
   "dependencies": {
