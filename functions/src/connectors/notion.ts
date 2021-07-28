@@ -63,7 +63,7 @@ export default class Notion implements INotion {
         // todo returns NotionServerTaskDBReponse but it should be flaten 
         return database.results.map(
             page => Notion.convertNotionTaskPageToNotionTask(page, db)
-        );
+        ).filter(({last_edited})=>!last_edited || last_edited >= db.lastRecentDate)
     }
 
     static convertNotionTaskPageToNotionTask(task: NotionTaskPage, db: NotionDb): NotionTask {
