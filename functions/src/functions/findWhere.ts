@@ -23,7 +23,7 @@ export default functions.pubsub
                 type: "new"
             })
         } else {
-            if (storedTask.completed && !data.done) {
+            if (!storedTask.completed && data.done) {
                 pubsub.validateTask(data, attribute.source);
 
             } else {
