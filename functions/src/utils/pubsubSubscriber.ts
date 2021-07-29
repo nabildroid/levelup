@@ -42,11 +42,15 @@ export default class PubsubSubscriber {
     }
 
     isNotionUpdated() {
-
         return this.createSubscription(
             this.client.getTopic("INSERT_TASK"),
         )
+    }
 
+    findWhere() {
+        return this.createSubscription(
+            this.client.getTopic("DETECTED_TASK_EVENT"),
+        )
     }
 
     async clear() {

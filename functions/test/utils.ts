@@ -1,0 +1,1 @@
+export const fromNow = (mins = 0) => new Date(Date.now() + (mins * 60) * 1000);

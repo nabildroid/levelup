@@ -30,5 +30,5 @@ export default functions.pubsub
 
 
 const stillRemainingPomodoros = (id: NTID): Promise<boolean> => {
-    return Promise.resolve(Math.random() > .5);
+    return Promise.resolve(Math.random() > 0);
 }
