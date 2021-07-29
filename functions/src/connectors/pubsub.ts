@@ -19,6 +19,10 @@ export default class PubSubConnector {
 
     }
 
+    getTopic(name: keyof typeof PubSubConnector.pubsubTopics) {
+        return this.client.topic(PubSubConnector.pubsubTopics[name]);
+    }
+
     constructor(client: PubSub) {
         this.client = client;
 
