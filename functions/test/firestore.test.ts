@@ -5,8 +5,8 @@ import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
 
 
-afterAll(() => {
-    firestore.clear();
+afterAll(async () => {
+    await firestore.clear();
 
 })
 

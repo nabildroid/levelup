@@ -1,8 +1,6 @@
 import * as admin from "firebase-admin";
-import mockDataFirestore from "./utils/mockDataFirestore";
 import { PubSub } from "@google-cloud/pubsub";
 import PubSubConnector from "./connectors/pubsub";
-import isDev from "./utils/isDev";
 import dotenv from "dotenv";
 import FirestoreConnector from "./connectors/firestore";
 
@@ -11,18 +9,14 @@ dotenv.config();
 
 admin.initializeApp();
 
+const firestoreInstance = admin.firestore();
 export const firestore = new FirestoreConnector(
-    admin.firestore()
+    firestoreInstance
 );
 
 export const pubsub = new PubSubConnector(
     new PubSub()
 );
-
-if (isDev()) {
-    mockDataFirestore(firestore);
-}
-
 
 export { default as isNotionUpdated } from "./functions/isNotionUpdated";
 export { default as todoistWebhook } from "./functions/todoistWebhook";
