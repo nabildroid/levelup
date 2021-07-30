@@ -1,9 +1,10 @@
 import * as functions from "firebase-functions";
-import {firestore} from "..";
+import { firestore } from "..";
+import FirestoreConnector from "../connectors/firestore";
 import Notion from "../connectors/notion";
 import { NotionDbType } from "../types/notion";
 import { PubsubDetectedEventTypeAttributes, PubsubSources } from "../types/pubsub";
-import { NTID, Task } from "../types/task";
+import { NTID, StoredTask, Task } from "../types/task";
 import { User } from "../types/user";
 
 
@@ -17,38 +18,39 @@ export default functions.https.onRequest(async (req, res) => {
     // todo use User.todoistProject to find the right userId
     const user = await firestore.lazyLoadUser("nabil")
     const notion = new Notion(user.auth.notion);
-    let last_edited_time: string;
 
 
     if (attributes.type == "complete" || attributes.type == "uncomplete") {
+
         const { id } = body as { id: NTID };
-        last_edited_time = await handleUpdateTask({
-            id,
+        const task = {
+            id: await ensureNotionTaskIdExists(id, firestore),
             done: attributes.type == "complete"
-        }, notion)
+        }
+
+        const { } = await updateTask(task, notion)
     } else {
 
 
-        const task = body as Task;
+        const task = await makeTaskReadyForNotion(
+            body as Task,
+            user,
+            attributes.source,
+            firestore
+        );
 
-        if (task.labels && attributes.source == PubsubSources.Todoist) {
-            task.labels = translateTodoistLabels(user, task.labels);
-        }
-
-        if (extractNotionIdfromNTID(task.id) == undefined) {
-            const storedTask = await firestore.getStoredTask(task.id);
-            task.id[1] = storedTask?.id[1];
-        }
 
         if (attributes.type == "new") {
-            const fullNTID = getFullNTID(user, task.parent)
-            last_edited_time = await handleNewTask({
-                ...task,
-                parent: fullNTID
-            }, "nabil", notion);
+            const { id } = await newTask(task, user, notion);
+
+            await firestore.saveNewTask([task.id[0], id], "nabil");
         }
-        else {
-            last_edited_time = await handleUpdateTask(task, notion);
+
+        else if (attributes.type == "update") {
+            const { } = await updateTask({
+                ...task,
+                id: task.id as [string, string]
+            }, notion);
         }
 
     }
@@ -60,26 +62,25 @@ export default functions.https.onRequest(async (req, res) => {
 });
 
 // required the parent ID
-const handleNewTask = async (task: Task, user: string, notion: Notion) => {
+const newTask = async (task: Task, user: User, notion: Notion) => {
 
-    const parentId = extractNotionIdfromNTID(task.parent) as string;
+    const fullNTID = getFullNTID(user, task.parent)
+
+    const parentId = extractNotionIdfromNTID(fullNTID) as string;
 
     const response = await notion.createTask({
         ...task,
         parent: parentId,
         id: task.id[0], // todo useless information
     });
-
-
+    const { id, last_edited_time } = response;
     // todo  response.last_edited_time must be saved withing the user stuff!
 
-    await firestore.saveNewTask([task.id[0], response.id], user);
-
-    return response.last_edited_time;
+    return { id, last_edited_time };
 }
 
 // todo remove Notion dependency from arguments
-const handleUpdateTask = async (task: Partial<Task> & { id: NTID }, notion: Notion) => {
+const updateTask = async (task: Partial<Task> & { id: [string, string] }, notion: Notion) => {
 
     const id = extractNotionIdfromNTID(task.id) as string;
 
@@ -89,11 +90,41 @@ const handleUpdateTask = async (task: Partial<Task> & { id: NTID }, notion: Noti
         parent: undefined
     });
 
-    return response.last_edited_time;
+    const { last_edited_time } = response;
+
+    return { id, last_edited_time };
 }
 
+/**
+ * add the correct Task ID, and translate todoist Labels to text that notion accepts
+ */
+export const makeTaskReadyForNotion = async (task: Task, user: User, source: PubsubSources, firestore: FirestoreConnector) => {
+    const notionTask: Task = {
+        ...task
+    }
 
+    if (task.labels && source == PubsubSources.Todoist) {
+        notionTask.labels = translateTodoistLabels(user, task.labels);
+    }
 
+    if (extractNotionIdfromNTID(task.id) == undefined) {
+        const storedTask = await firestore.getStoredTask(task.id);
+        notionTask.id[1] = storedTask?.id[1];
+    }
+
+    notionTask.id = await ensureNotionTaskIdExists(task.id, firestore)
+
+    return notionTask
+}
+
+export const ensureNotionTaskIdExists = async (id: NTID, firestore: FirestoreConnector) => {
+
+    if (extractNotionIdfromNTID(id) == undefined) {
+        const storedTask = await firestore.getStoredTask(id) as StoredTask;
+        return storedTask.id as [string, string]
+    }
+    return id as [string, string];
+}
 
 export const translateTodoistLabels = (user: User, labels: string[]) => {
     return labels.map(label =>
