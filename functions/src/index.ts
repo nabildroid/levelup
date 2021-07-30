@@ -4,19 +4,11 @@ import PubSubConnector from "./connectors/pubsub";
 import dotenv from "dotenv";
 import FirestoreConnector from "./connectors/firestore";
 
-
 dotenv.config();
 
-admin.initializeApp();
+export const firestore = new FirestoreConnector(() => admin.firestore());
 
-const firestoreInstance = admin.firestore();
-export const firestore = new FirestoreConnector(
-    firestoreInstance
-);
-
-export const pubsub = new PubSubConnector(
-    new PubSub()
-);
+export const pubsub = new PubSubConnector(new PubSub());
 
 export { default as isNotionUpdated } from "./functions/isNotionUpdated";
 export { default as todoistWebhook } from "./functions/todoistWebhook";

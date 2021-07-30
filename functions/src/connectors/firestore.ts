@@ -6,13 +6,21 @@ import isDev from "../utils/isDev";
 const users: { [key: string]: User } = {};
 
 export default class FirestoreConnector {
-    private client: FirebaseFirestore.Firestore;
+    private _client!: FirebaseFirestore.Firestore;
+    private isReady = false;
+    private init: () => FirebaseFirestore.Firestore;
 
-    constructor(firestore: FirebaseFirestore.Firestore) {
-        this.client = firestore;
+    constructor(init: () => FirebaseFirestore.Firestore) {
+        this.init = init;
     }
 
-
+    private get client() {
+        if (!this.isReady) {
+            this._client = this.init();
+            this.isReady = true;
+        }
+        return this._client;
+    }
     async lazyLoadUser(user: string): Promise<User> {
         if (users[user]) return Promise.resolve(users[user]);
         else {

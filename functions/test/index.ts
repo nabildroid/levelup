@@ -14,15 +14,13 @@ process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
 process.env.PUBSUB_EMULATOR_HOST = 'localhost:8085'
 export const NOTION_TOKEN = process.env.NOTION_TOKEN as string;
 
-admin.initializeApp({
-    projectId
-})
-
-
-export const firestore = new FirestoreConnector(
-    admin.firestore()
+admin.initializeApp(
+    {
+        projectId,
+    },
 );
 
+export const firestore = new FirestoreConnector(() => admin.firestore());
 
 export const pubscriber = new PubsubSubscriber(
     new PubSubConnector(
