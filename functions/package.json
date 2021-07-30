@@ -10,7 +10,7 @@
     "emulators-test": "firebase emulators:exec ./script.sh",
     "test": "jest",
     "build": "tsc",
-    "watch-test": "jest --watch"
+    "watch-test": "NODE_ENV='development' jest --watch"
   },
   "repository": {
     "type": "git",

@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import FirestoreConnector from "./connectors/firestore";
 
 dotenv.config();
-
+admin.initializeApp();
 export const firestore = new FirestoreConnector(() => admin.firestore());
 
 export const pubsub = new PubSubConnector(new PubSub());

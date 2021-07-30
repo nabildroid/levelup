@@ -17,7 +17,7 @@ export const NOTION_TOKEN = process.env.NOTION_TOKEN as string;
 admin.initializeApp(
     {
         projectId,
-    },
+    },"Hello WOrld"
 );
 
 export const firestore = new FirestoreConnector(() => admin.firestore());
