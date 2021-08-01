@@ -110,10 +110,8 @@ describe("test NotionConnector & NotionAPI", () => {
             last_edited: new Date()
         };
 
-        if (Math.random() >= 0.5)
-            task.priority = Priority.P3;
-        if (Math.random() >= 0.5)
-            task.section = "section1";
+        if (Math.random() >= 0.5) task.priority = Priority.P3;
+        if (Math.random() >= 0.5) task.section = "section1";
 
         const lastRecentDate = new Date( Date.now()  - 100000 );
         const db: NotionDb = {
@@ -168,10 +166,8 @@ describe("test NotionConnector & NotionAPI", () => {
                 last_edited: new Date()
             };
 
-            if (Math.random() >= 0.5)
-                task.priority = Priority.P1;
-            if (Math.random() >= 0.5)
-                task.section = "tech";
+            if (Math.random() >= 0.5) task.priority = Priority.P1;
+            if (Math.random() >= 0.5) task.section = "tech";
 
             const page = await notion.updateTask({
                 ...task,
@@ -181,8 +177,8 @@ describe("test NotionConnector & NotionAPI", () => {
             const data = Notion.convertNotionTaskPageToNotionTask(page as NotionTaskPage, db)
             expect(data.id).toEqual(id);
             expect(data.title).toEqual(task.title);
-            expect(data.section).toEqual(task.section);
-            expect(data.priority).toEqual(task.priority);
+            if (task.section) expect(data.section).toEqual(task.section);
+            if (task.priority) expect(data.priority).toEqual(task.priority);
             expect(data.labels).toEqual(task.labels);
             expect(data.done).toEqual(task.done);
         })
