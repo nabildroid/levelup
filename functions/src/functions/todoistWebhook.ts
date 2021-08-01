@@ -16,9 +16,9 @@ export default functions.https.onRequest(async (req, res) => {
 
     const task: Task = {
         id: [id.toString()],
-        done: checked,
+        done: checked || false,
         parent: [project_id.toString()],
-        labels,
+        labels:labels.map(v=>v.toString()),
         title: content,
         priority: toPriority(priority),
         section: section_id?.toString()

@@ -12,6 +12,17 @@ export const toPriority = (priority: string | number | undefined): Priority => {
     else return Priority.P3
 }
 
+export const fromPriority = (priority?: Priority): number => {
+    if (priority == Priority.P1) {
+        return 4;
+    } else if (priority == Priority.P2) {
+        return 3;
+    }
+    else if (priority == Priority.P3) {
+        return 2;
+    }
+    return 1;
+}
 export const nestedArrayToObject = (arr: any[][]) => {
     return arr.reduce((out, val, index) => Object.assign(out, { [index]: val }), {});
 }
