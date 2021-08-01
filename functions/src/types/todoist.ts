@@ -8,16 +8,25 @@ export enum TodoistWebhookType {
 }
 
 
+export interface TodoistNewTask {
+    content: string,
+    priority: number,
+    labels: number[], // need DB to evaluate
+
+    project_id?: number, // need DB to evaluate
+    section_id?: number, // need DB to evaluate
+}
+
+export interface TodoistTask extends TodoistNewTask {
+    id: number,
+    project_id: number, // need DB to evaluate
+    section_id: number,
+    checked: boolean,
+}
+
+
 export type TodoistWebhook = {
     event_name: TodoistWebhookType,
     user_id: number,
-    event_data: {
-        id: number,
-        priority: string,
-        content: string,
-        project_id: number, // need DB to evaluate
-        section_id?: number, // need DB to evaluate
-        checked: boolean,
-        labels: string[], // need DB to evaluate
-    }
+    event_data: TodoistTask & { id: number, project_id: number }
 }
