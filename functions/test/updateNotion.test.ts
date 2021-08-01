@@ -6,7 +6,8 @@ import {
     ensureNotionTaskIdExists,
     newTask,
     updateTask,
-} from "../src/functions/updateNotion";
+} from "../src/utils/notionUtils";
+
 import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
 import { firestore } from ".";
