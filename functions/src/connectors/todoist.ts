@@ -52,4 +52,15 @@ export default class TodoistConnector {
 
         return response.status == 204;
     }
+
+    async getAllLabels() {
+        const { data } = await this.client.get("/labels");
+        return data as { id: number, name: string }[]
+    }
+
+    async createLabel(name: string) {
+        const { data } = await this.client.post("/labels", { name });
+
+        return data as { id: number, name: string };
+    }
 }

@@ -9,7 +9,7 @@ const todoist = new TodoistConnector(TODOIST_TOKEN);
 
 
 
-it.only("creates a new todoist task", async () => {
+it("creates a new todoist task", async () => {
     const randomTitle = Math.random().toString();
     const task = await todoist.createTask({
         content: randomTitle,
@@ -26,7 +26,7 @@ it.only("creates a new todoist task", async () => {
     expect.setState({ id: task.id });
 });
 
-it.only("updates a task", async () => {
+it("updates a task", async () => {
     const randomTitle = Math.random().toString();
 
     await expect(todoist.updateTask({
@@ -36,10 +36,31 @@ it.only("updates a task", async () => {
     })).resolves.toBeTruthy();
 });
 
-it.only("mark a task as completed",async()=>{
+it("marks a task as completed", async () => {
     await expect(todoist.closeTask(expect.getState().id)).toBeTruthy();
 })
 
-it.only("mark a task as uncompleted",async()=>{
+it("marks a task as uncompleted", async () => {
     await expect(todoist.reopenTask(expect.getState().id)).toBeTruthy();
+})
+
+it("creates a new label", async () => {
+    const labels = [Math.random().toString(), Math.random().toString()];
+
+
+    await todoist.createLabel(labels[0]);
+    await todoist.createLabel(labels[1]);
+
+    expect.setState({ labels });
+})
+
+it("gets all labels", async () => {
+    const { labels } = expect.getState();
+
+    const fetchedLables = (await todoist.getAllLabels()).map(p => p.name);
+
+    expect(fetchedLables).toContainEqual(labels[0]);
+    expect(fetchedLables).toContainEqual(labels[1]);
+
+
 })
