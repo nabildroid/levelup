@@ -6,7 +6,8 @@ import {
     PubsubSources,
 } from "../types/pubsub";
 import { NTID, Task } from "../types/task";
-import { ensureNotionTaskIdExists, newTask, translateTodoistLabels, updateTask } from "../utils/notionUtils";
+import { ensureNotionTaskIdExists, newTask, updateTask } from "../utils/notionUtils";
+import {translateTodoistLabels} from "../utils/todoistUtils";
 
 export default functions.https.onRequest(async (req, res) => {
     const attributes = JSON.parse(

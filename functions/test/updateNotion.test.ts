@@ -1,12 +1,12 @@
 import axios from "axios";
 import {
-    extractNotionIdfromNTID,
-    translateTodoistLabels,
-    getFullNTID,
     ensureNotionTaskIdExists,
+    extractNotionIdfromNTID,
     newTask,
     updateTask,
 } from "../src/utils/notionUtils";
+
+import { translateTodoistLabels } from "../src/utils/todoistUtils";
 
 import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
@@ -16,6 +16,7 @@ import { fromNow } from "./utils";
 import { NOTION_TOKEN } from ".";
 import { Task } from "../src/types/task";
 import { PubsubDetectedEventTypeAttributes, PubsubSources } from "../src/types/pubsub";
+import { getFullNTID } from "../src/utils/general";
 
 const notion = new Notion(NOTION_TOKEN);
 
@@ -141,7 +142,6 @@ describe("notion should reflect the exact state of other services", () => {
                 user,
                 notion
             );
-            expect(new Date(last_edited_time)).toBeTruthy();
             expect(id).toBeTruthy();
             expect.setState({ id });
         });

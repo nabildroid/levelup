@@ -1,4 +1,6 @@
-import { Priority } from "../types/task";
+import { NotionDbType } from "../types/notion";
+import { NTID, Priority } from "../types/task";
+import { User } from "../types/user";
 
 export const toPriority = (priority: string | number | undefined): Priority => {
     console.log("priority", priority)
@@ -23,6 +25,37 @@ export const fromPriority = (priority?: Priority): number => {
     }
     return 1;
 }
+
+
+
+export const getFullNTID = (user: User, id: NTID): NTID => {
+    const { todoistProjects } = user;
+
+    const [firstId] = id;
+    let secondId: string | undefined;
+
+    for (const project of todoistProjects) {
+        if (firstId == project[0] || firstId == project[1]) {
+            secondId = firstId == project[0] ? project[1] : project[0];
+            break;
+        }
+    }
+
+    // if notionDB doesn't exists with current TodoistProject associate NotionThoughts db with this project (AKA inbox)
+    if (!secondId) {
+        const thoughtDB = user.notionDB.find(
+            (db) => db.type == NotionDbType.THOUGHT
+        );
+
+        secondId = thoughtDB?.id;
+    }
+
+    return [firstId, secondId];
+};
+
+
+
+
 export const nestedArrayToObject = (arr: any[][]) => {
     return arr.reduce((out, val, index) => Object.assign(out, { [index]: val }), {});
 }

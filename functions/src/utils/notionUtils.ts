@@ -3,6 +3,10 @@ import Notion from "../connectors/notion";
 import { NotionDbType } from "../types/notion";
 import { NTID, Task } from "../types/task";
 import { User } from "../types/user";
+import { getFullNTID } from "./general";
+
+
+
 
 // required the parent ID
 export const newTask = async (task: Task, user: User, notion: Notion) => {
@@ -18,7 +22,7 @@ export const newTask = async (task: Task, user: User, notion: Notion) => {
     const { id, last_edited_time } = response;
     // todo  response.last_edited_time must be saved withing the user stuff!
 
-    return { id, last_edited_time };
+    return { id };
 };
 
 // todo remove Notion dependency from arguments
@@ -36,7 +40,7 @@ export const updateTask = async (
 
     const { last_edited_time } = response;
 
-    return { id, last_edited_time };
+    return { id };
 };
 
 export const ensureNotionTaskIdExists = async (
@@ -50,43 +54,6 @@ export const ensureNotionTaskIdExists = async (
         }
     }
     return id as [string, string];
-};
-
-export const translateTodoistLabels = <T extends string[] | number[]>(
-    user: User,
-    labels: string[]
-) => {
-    return Object.entries(user.todoistLabel)
-        .map(([key, value]) => {
-            if (labels.includes(key)) return value;
-            if (labels.includes(value)) return key;
-        })
-        .filter((v) => v) as string[];
-};
-
-export const getFullNTID = (user: User, id: NTID): NTID => {
-    const { todoistProjects } = user;
-
-    const [firstId] = id;
-    let secondId: string | undefined;
-
-    for (const project of todoistProjects) {
-        if (firstId == project[0] || firstId == project[1]) {
-            secondId = firstId == project[0] ? project[1] : project[0];
-            break;
-        }
-    }
-
-    // if notionDB doesn't exists with current TodoistProject associate NotionThoughts db with this project (AKA inbox)
-    if (!secondId) {
-        const thoughtDB = user.notionDB.find(
-            (db) => db.type == NotionDbType.THOUGHT
-        );
-
-        secondId = thoughtDB?.id;
-    }
-
-    return [firstId, secondId];
 };
 
 export const extractNotionIdfromNTID = (id: NTID) => {
