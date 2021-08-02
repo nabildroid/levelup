@@ -31,9 +31,7 @@ export default functions.https.onRequest(async (req, res) => {
     } else {
         const task = body as Task;
 
-        if (task.labels && attributes.source == PubsubSources.Todoist) {
-            task.labels = translateTodoistLabels(user, task.labels);
-        }
+        task.labels = translateTodoistLabels(user, task.labels);
 
         if (attributes.type == "new") {
             const { id } = await newTask(task, user, todoist);
