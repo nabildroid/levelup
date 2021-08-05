@@ -15,7 +15,6 @@ export default functions.https.onRequest(async (req, res) => {
     ) as PubsubDetectedEventTypeAttributes;
     console.log(attributes);
     const body = req.body as { id: NTID } | Task;
-    console.log(body);
     // todo use User.todoistProject to find the right userId
     const user = await firestore.lazyLoadUser("nabil");
     const notion = new Notion(user.auth.notion);
@@ -43,8 +42,10 @@ export default functions.https.onRequest(async (req, res) => {
         } else if (attributes.type == "update") {
             console.log("Updating ...");
             const id = await ensureNotionTaskIdExists(task.id, firestore);
-            console.log(id);
-            console.log(await updateTask({ ...task, id }, notion));
+            await updateTask({
+                ...task,
+                id,
+            }, notion);
         }
     }
 

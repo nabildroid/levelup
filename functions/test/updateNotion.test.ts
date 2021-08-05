@@ -33,12 +33,12 @@ const user: User = {
     },
     notionDB: [
         {
-            id: "a29912913c7a4357a43938f0f6f0ccf5",
+            id: "fec204bf56ec4abd958654fe93222ec5",
             type: NotionDbType.TASK,
             lastRecentDate: new Date(),
         },
         {
-            id: "a29912913c7a4357a43938f0f6f0ccf5",
+            id: "fec204bf56ec4abd958654fe93222ec5",
             type: NotionDbType.TASK,
             lastRecentDate: new Date(),
         },
@@ -55,7 +55,7 @@ const user: User = {
     },
     todoistProjects: [
         ["poject1", "a29912913c7a4357a4938f0f6f0ccf5"],
-        ["a29912913c7a4357a43938f0f6f0ccf5", "project2"],
+        ["fec204bf56ec4abd958654fe93222ec5", "project2"],
         ["poject3"],
     ],
 };
@@ -63,7 +63,7 @@ const user: User = {
 describe("notion should reflect the exact state of other services", () => {
     describe("helper functions", () => {
         it("extracts NotionID from NTID", () => {
-            const notionID = "a29912913c7a4357a43938f0f6f0ccf5";
+            const notionID = "fec204bf56ec4abd958654fe93222ec5";
             expect(extractNotionIdfromNTID(["dded", notionID])).toEqual(
                 notionID
             );
@@ -112,7 +112,7 @@ describe("notion should reflect the exact state of other services", () => {
     });
 
     describe("firebase related helper functions", () => {
-        beforeEach(async () => {
+        beforeAll(async () => {
             await firestore.clear();
         });
         it("ensures both Todoist & Notion IDs exists", async () => {
@@ -131,10 +131,10 @@ describe("notion should reflect the exact state of other services", () => {
 
     describe("notion related helper functions", () => {
         it("creates new Task", async () => {
-            const { id, last_edited_time } = await newTask(
+            const { id } = await newTask(
                 {
                     done: false,
-                    parent: ["a29912913c7a4357a43938f0f6f0ccf5"],
+                    parent: ["fec204bf56ec4abd958654fe93222ec5"],
                     title: "hello world",
                     labels: ["test"],
                     id: [""],
@@ -162,7 +162,7 @@ describe("notion should reflect the exact state of other services", () => {
             ).resolves;
 
             const tasks = await notion.checkForNewTask({
-                id: "a29912913c7a4357a43938f0f6f0ccf5",
+                id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-1),
                 type: NotionDbType.TASK,
             });
@@ -173,9 +173,6 @@ describe("notion should reflect the exact state of other services", () => {
     });
 
     describe("updateNotion service", () => {
-        beforeAll(async () => {
-            await firestore.clear();
-        });
 
         it("creates new Task",async () =>{
             await firestore.createUser(user);
@@ -198,7 +195,7 @@ describe("notion should reflect the exact state of other services", () => {
             })
 
             const tasks = await notion.checkForNewTask({
-                id: "a29912913c7a4357a43938f0f6f0ccf5",
+                id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-1),
                 type: NotionDbType.TASK,
             });
@@ -227,7 +224,7 @@ describe("notion should reflect the exact state of other services", () => {
             })
 
             const tasks = await notion.checkForNewTask({
-                id: "a29912913c7a4357a43938f0f6f0ccf5",
+                id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-1),
                 type: NotionDbType.TASK,
             });

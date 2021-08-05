@@ -73,13 +73,14 @@ export default class FirestoreConnector {
         });
     }
 
-    async clear(){
-        if(isDev()){
-            this.client.collection("users").get().then((docs)=>{
-                docs.forEach(doc=>doc.ref.delete());
+    async clear() {
+        if (isDev()) {
+            await this.client.collection("/users").get().then(async (docs) => {
+                await Promise.all(docs.docs.map(doc => doc.ref.delete()));
+
             })
-            this.client.collection("tasks").get().then((docs)=>{
-                docs.forEach(doc=>doc.ref.delete());
+            await this.client.collection("/tasks").get().then(async (docs) => {
+                await Promise.all(docs.docs.map(doc => doc.ref.delete()));
             })
         }
     }

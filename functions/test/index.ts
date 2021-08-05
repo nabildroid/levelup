@@ -18,7 +18,7 @@ export const TODOIST_TOKEN = process.env.TODOIST_TOKEN as string;
 admin.initializeApp(
     {
         projectId,
-    },"Hello WOrld"
+    }
 );
 
 export const firestore = new FirestoreConnector(() => admin.firestore());

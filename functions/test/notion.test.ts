@@ -106,8 +106,7 @@ describe("test NotionConnector & NotionAPI", () => {
             id: "ID1",
             labels: Math.random() >= 0.5 ? [] : ["label1", "label2"],
             title: "hello world",
-            parent: "a29912913c7a4357a43938f0f6f0ccf5",
-            last_edited: new Date()
+            parent: "3c8635f18565489494b0355aa6e041d4",
         };
 
         if (Math.random() >= 0.5) task.priority = Priority.P3;
@@ -134,16 +133,17 @@ describe("test NotionConnector & NotionAPI", () => {
             const pages = await notion.checkForNewTask(db);
 
             expect(pages.length).toBeGreaterThanOrEqual(1);
+            const page = pages.find(p=>p.id == id) as NotionTask;
+            expect(page).toBeTruthy();
 
-            expect(pages[0].id).toEqual(id);
-            expect(pages[0].title).toEqual(task.title);
-            expect(pages[0].section).toEqual(task.section);
-            expect(pages[0].priority).toEqual(task.priority);
-            expect(pages[0].labels).toEqual(task.labels);
-            expect(pages[0].done).toEqual(task.done);
+            expect(page.id).toEqual(id);
+            expect(page.title).toEqual(task.title);
+            expect(page.section).toEqual(task.section);
+            expect(page.priority).toEqual(task.priority);
+            expect(page.labels).toEqual(task.labels);
+            expect(page.done).toEqual(task.done);
             
-            db.lastRecentDate = (pages[0].last_edited as Date)
-        })
+            db.lastRecentDate = page.last_edited as Date;
 
         it("check for new Tasks when it doesn't exits",async ()=>{
             const lastRecentDate = new Date( Date.now()  + 100000 );
@@ -162,8 +162,7 @@ describe("test NotionConnector & NotionAPI", () => {
                 id: "ID1",
                 labels: Math.random() >= 0.4 ? [] : ["Changed1", "Changed2", "Changed3"],
                 title: "UpdatedTitle",
-                parent: "a29912913c7a4357a43938f0f6f0ccf5",
-                last_edited: new Date()
+                parent: "3c8635f18565489494b0355aa6e041d4",
             };
 
             if (Math.random() >= 0.5) task.priority = Priority.P1;

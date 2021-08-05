@@ -1,13 +1,12 @@
-import {firestore} from ".";
+import { firestore } from ".";
 
 import { StoredTask } from "../src/types/task";
 import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
 
 
-afterAll(async () => {
+beforeAll(async () => {
     await firestore.clear();
-
 })
 
 describe("test firestore Conector functionalities", () => {
@@ -44,11 +43,10 @@ describe("test firestore Conector functionalities", () => {
             ]
         } as User;
 
-        beforeAll(async () => {
-            await firestore.createUser(userData);
-        });
 
         it("should create a Valide user", async () => {
+            await firestore.createUser(userData);
+
             const user = await firestore.lazyLoadUser("nabil")
 
             expect(user).toEqual(userData);

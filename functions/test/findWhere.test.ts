@@ -5,7 +5,7 @@ import { NotionDbType } from "../src/types/notion";
 import { PubsubDetectedEventTypeAttributes } from "../src/types/pubsub";
 import { NTID, Task } from "../src/types/task";
 import { User } from "../src/types/user";
-import { fromNow } from "./utils";
+import { fromNow, getEventByID } from "./utils";
 
 
 const notion = new Notion(NOTION_TOKEN);
@@ -18,10 +18,8 @@ const path = (name: string, args: string = "") => `http://localhost:5001/${proje
 
 
 
+
 describe("test findwhere, a event type detector", () => {
-    beforeEach(async () => {
-        await firestore.clear();
-    })
 
 
     it("doesn't fire when User is uptodate", async () => {
@@ -74,12 +72,11 @@ describe("test findwhere, a event type detector", () => {
         await firestore.createUser(userData);
 
         const page = await notion.createTask(task);
-        
-        
 
         axios.get(path("isNotionUpdated", "?user=nabil"))
 
-        const event = await pubscriber.findWhere();
+        const events = await pubscriber.findWhere();
+        const event = getEventByID(events, page.id);
         expect(event).toBeTruthy();
 
         const attributes = event.attributes as PubsubDetectedEventTypeAttributes;
@@ -90,6 +87,7 @@ describe("test findwhere, a event type detector", () => {
         expect(data.id).toHaveLength(1);
         expect(data.id).toEqual([page.id])
         expect.setState({ id: data.id });
+
     });
 
 
@@ -111,13 +109,13 @@ describe("test findwhere, a event type detector", () => {
             todoistProjects: []
         } as User;
 
-        await firestore.saveNewTask(expect.getState().id as NTID, "nabil");
         await firestore.createUser(userData);
-
+        await firestore.saveNewTask(expect.getState().id as NTID, "nabil");
 
         axios.get(path("isNotionUpdated", "?user=nabil"))
 
-        const event = await pubscriber.findWhere();
+        const events = await pubscriber.findWhere();
+        const event = getEventByID(events, expect.getState().id[0]);
         expect(event).toBeTruthy();
 
         const attributes = event.attributes as PubsubDetectedEventTypeAttributes;
@@ -130,7 +128,7 @@ describe("test findwhere, a event type detector", () => {
         expect(data.parent).toEqual([task.parent]);
     });
 
-    it("detects completed tasks",async ()=>{
+    it("detects completed tasks", async () => {
 
 
         const userData = {
@@ -147,18 +145,19 @@ describe("test findwhere, a event type detector", () => {
             todoistProjects: []
         } as User;
 
-        await firestore.saveNewTask(expect.getState().id as NTID, "nabil");
         await firestore.createUser(userData);
+        await firestore.saveNewTask(expect.getState().id as NTID, "nabil");
 
         await notion.updateTask({
             ...task,
-            done:true,
-            id:expect.getState().id[0]
+            done: true,
+            id: expect.getState().id[0]
         })
 
         axios.get(path("isNotionUpdated", "?user=nabil"))
 
-        const event = await pubscriber.findWhere();
+        const events = await pubscriber.findWhere();
+        const event = getEventByID(events, expect.getState().id[0]);
         expect(event).toBeTruthy();
 
         const attributes = event.attributes as PubsubDetectedEventTypeAttributes;

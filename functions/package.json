@@ -8,7 +8,7 @@
     "watch-node": "NODE_ENV='development' nodemon ./dist/src/index.js",
     "emulators": "NODE_ENV='development' PROJECT_ID='rewarded-automation' firebase emulators:start",
     "emulators-test": "firebase emulators:exec ./script.sh",
-    "test": "jest",
+    "test": "NODE_ENV='development' jest --runInBand",
     "build": "tsc",
     "watch-test": "NODE_ENV='development' jest --watch"
   },
