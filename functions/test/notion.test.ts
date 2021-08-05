@@ -145,8 +145,10 @@ describe("test NotionConnector & NotionAPI", () => {
             
             db.lastRecentDate = page.last_edited as Date;
 
-        it("check for new Tasks when it doesn't exits",async ()=>{
-            const lastRecentDate = new Date( Date.now()  + 100000 );
+
+        })
+        it("check for new Tasks when it doesn't exits", async () => {
+            const lastRecentDate = new Date(Date.now() + 100000);
 
             const pages = await notion.checkForNewTask({
                 ...db,
