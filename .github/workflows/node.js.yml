@@ -30,7 +30,5 @@ jobs:
       working-directory: ./functions
     - run: npm run build
       working-directory: ./functions
-    - run: npm run emulators &
-      working-directory: ./functions
-    - run: npm test
+    - run: npm emulators-test
       working-directory: ./functions
