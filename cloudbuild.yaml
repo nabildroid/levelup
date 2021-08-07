@@ -1,0 +1,33 @@
+steps:
+  - name: 'gcr.io/cloud-builders/wget'
+    id: "firebase"
+    args:
+      - '--quiet'
+      - '-O'
+      - 'firebase'
+      - 'https://firebase.tools/bin/linux/latest'
+
+  - name: "gcr.io/cloud-builders/npm"
+    id: "install"
+    waitFor:
+      - "firebase"
+    args:
+      - "i"
+  
+  - name: "gcr.io/cloud-builders/npm"
+    id: "build"
+    waitFor:
+      - "install"
+    args:
+      - "run"
+      - "build"
+  
+  - name: "node"
+    waitFor:
+      - "build"
+    args:
+      - "bash"
+      - "-c"
+      - |
+        chmod a+x ./firebase
+        ./firebase deploy --only functions > functions.log
