@@ -13,13 +13,13 @@ export interface TodoistNewTask {
     priority: number,
     labels?: number[], // need DB to evaluate
 
-    project_id?: number, // optional for targeting Inbox!
+    project_id?: string, // optional for targeting Inbox!
     section_id?: number, // need DB to evaluate
 }
 
 export interface TodoistTask extends TodoistNewTask {
-    id: number,
-    project_id: number, // need DB to evaluate
+    id: string,
+    project_id: string, // need DB to evaluate
     section_id: number,
     labels: number[], 
     checked: boolean,
@@ -27,16 +27,16 @@ export interface TodoistTask extends TodoistNewTask {
 
 
 export interface TodoistTaskUpdate {
-    id: number,
+    id: string,
     content?: string,
     priority?: number,
     labels?: number[], // need DB to evaluate
-    project_id?: number, // optional for targeting Inbox!
+    project_id?: string, // optional for targeting Inbox!
     section_id?: number, // need DB to evaluate
 }
 
 export type TodoistWebhook = {
     event_name: TodoistWebhookType,
     user_id: number,
-    event_data: TodoistTask & { id: number, project_id: number }
+    event_data: TodoistTask 
 }

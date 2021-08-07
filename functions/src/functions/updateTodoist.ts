@@ -22,16 +22,23 @@ export default functions.https.onRequest(async (req, res) => {
     if (attributes.type == "complete" || attributes.type == "uncomplete") {
         const id = await ensureTodoistTaskIdExists((body as { id: NTID }).id, firestore)
 
-        if (attributes.type == "complete") {
-            await todoist.closeTask(extractTodoistIdfromNTID(id));
+        const taskId = extractTodoistIdfromNTID(id);
+        if (!taskId) {
+            throw Error(`couldn't ${attributes.type} Todoist Task without having an ID ` + JSON.stringify(id));
         } else {
-            await todoist.reopenTask(extractTodoistIdfromNTID(id));
+
+            if (attributes.type == "complete") {
+                await todoist.closeTask(taskId);
+            } else {
+                await todoist.reopenTask(taskId);
+            }
         }
 
     } else {
         const task = body as Task;
 
-        task.labels = translateTodoistLabels(user, task.labels);
+        if (task.labels)
+            task.labels = translateTodoistLabels(user, task.labels);
 
         if (attributes.type == "new") {
             const { id } = await newTask(task, user, todoist);

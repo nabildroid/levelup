@@ -27,19 +27,26 @@ export default class TodoistConnector {
 
         return data.map(d => ({
             ...d,
+            id: d.id.toString(),
+            project_id: d.project_id.toString(),
             label_ids: d.labels
         }))
     }
 
 
     async createTask(task: TodoistNewTask): Promise<TodoistTask> {
-        const { data } = await this.client.post("/tasks", {
+        const response = await this.client.post("/tasks", {
             ...task,
             label_ids: task.labels
         })
+
+        const data = response.data as TodoistTask;
+
         return {
-            ...data as TodoistTask,
-            labels: data.label_ids as number[]
+            ...data,
+            id: data.id.toString(),
+            project_id: data.project_id.toString(),
+            labels: response.data.label_ids as number[]
         }
 
     }
@@ -48,22 +55,25 @@ export default class TodoistConnector {
         const path = `/tasks/${task.id}`;
         const data = Object.assign({
             ...task,
-
-        }, task.labels ? { label_ids: task.labels } : {});
+            id: task.id.toString()
+        },
+            task.labels ? { label_ids: task.labels } : {},
+            task.project_id ? { project_id: task.project_id.toString() } : {},
+        );
 
         const response = await this.client.post(path, data);
 
         return response.status == 204;
     }
 
-    async closeTask(id: number) {
+    async closeTask(id: string) {
         const path = `/tasks/${id}/close`;
         const response = await this.client.post(path);
 
         return response.status == 204;
     }
 
-    async reopenTask(id: number) {
+    async reopenTask(id: string) {
         const path = `/tasks/${id}/reopen`;
         const response = await this.client.post(path);
 

@@ -17,7 +17,7 @@ export interface Task {
     title: string;
     descrption?: string;
     priority?: Priority;
-    labels: string[];
+    labels: (string | number)[];
     section?: string;
     done: boolean;
 }
@@ -28,7 +28,7 @@ export interface NewTask {
     title: string;
     descrption?: string;
     priority?: Priority;
-    labels?: string[];
+    labels?: (string | number)[];
     section?: string;
 }
 
@@ -37,7 +37,7 @@ export interface UpdateTask {
     title?: string;
     descrption?: string;
     priority?: Priority;
-    labels?: string[];
+    labels?: (string | number)[];
     section?: string;
     done?: boolean;
 }

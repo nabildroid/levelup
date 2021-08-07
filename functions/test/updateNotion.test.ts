@@ -165,7 +165,7 @@ describe("notion should reflect the exact state of other services", () => {
             const newTask: NewTask = {
                 id: ["TODOIST_ID"],
                 parent: ["project2"],
-                labels: ["81797"],
+                labels: [81797],
                 title: randomTitle,
             }
 
@@ -195,7 +195,7 @@ describe("notion should reflect the exact state of other services", () => {
             const randomTitle = Math.random().toString();
             const updatesTask: UpdateTask = {
                 id: [randomTodoistID(), expect.getState().id],
-                labels: ["1522", "81797"],
+                labels: [1522, 81797],
                 title: randomTitle,
                 done:true,
             }
