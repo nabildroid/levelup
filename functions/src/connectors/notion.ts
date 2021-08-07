@@ -37,7 +37,6 @@ export default class Notion implements INotion {
 
 
     async createTask(task: NotionTaskCreate) {
-        // todo needs refactoring someting like that convertNotionTaskPageToNotionTask
         return this.createPage(Notion.convertNotionTaskToSingleTaskPageProperties(task), task.parent);
     }
 
@@ -60,7 +59,6 @@ export default class Notion implements INotion {
             }
         }) as NotionServerTaskDBReponse;
 
-        // todo returns NotionServerTaskDBReponse but it should be flaten 
         return database.results.map(
             page => Notion.convertSingleTaskPageResponseToNotionTask(page, db.id)
         ).filter(({ last_edited }) =>
