@@ -30,8 +30,8 @@ jobs:
       working-directory: ./functions
     - run: npm run build
       working-directory: ./functions
+    - run: npm run emulators-test
+      working-directory: ./functions
       env: 
        NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
        TODOIST_TOKEN: ${{ secrets.TODOIST_TOKEN }}
-    - run: npm run emulators-test
-      working-directory: ./functions
