@@ -1,6 +1,6 @@
 import FirestoreConnector from "../connectors/firestore";
 import TodoistConnector from "../connectors/todoist";
-import { NTID, Task } from "../types/task";
+import { NewTask, NTID, Task, UpdateTask } from "../types/task";
 import { User } from "../types/user";
 import { fromPriority, getFullNTID } from "./general";
 
@@ -8,16 +8,16 @@ import { fromPriority, getFullNTID } from "./general";
 
 
 // required the parent ID
-export const newTask = async (task: Task, user: User, todoist: TodoistConnector) => {
+export const newTask = async (task: NewTask, user: User, todoist: TodoistConnector) => {
     const fullNTID = getFullNTID(user, task.parent);
 
     const project_id = extractTodoistIdfromNTID(fullNTID);
 
+
     const response = await todoist.createTask({
-        ...task,
         project_id,
         content: task.title,
-        labels: task.labels.map(parseInt),
+        labels: task.labels ? task.labels.map(parseInt) : [],
         priority: fromPriority(task.priority),
         section_id: task.section ? parseInt(task.section) : undefined,
     });
@@ -30,15 +30,15 @@ export const newTask = async (task: Task, user: User, todoist: TodoistConnector)
 
 
 export const updateTask = async (
-    task: Partial<Task> & { id: [string, string] },
+    task: UpdateTask,
     todoist: TodoistConnector
 ) => {
     const id = extractTodoistIdfromNTID(task.id);
 
     const response = await todoist.updateTask({
-        ...task,
         id,
-        labels: task.labels?.map(parseInt),
+        content: task.title,
+        labels: task.labels ? task.labels.map(parseInt) : [],
         priority: fromPriority(task.priority),
         section_id: task.section ? parseInt(task.section) : undefined,
     });
@@ -57,7 +57,9 @@ export const ensureTodoistTaskIdExists = async (
     id: NTID,
     firestore: FirestoreConnector
 ) => {
-    if (extractTodoistIdfromNTID(id) == undefined) {
+
+
+    if (id.length < 2 || !extractTodoistIdfromNTID(id)) {
         const storedTask = await firestore.getStoredTask(id);
         if (storedTask) {
             return storedTask.id as [string, string];

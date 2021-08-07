@@ -11,9 +11,9 @@ import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
 import { firestore } from ".";
 import Notion from "../src/connectors/notion";
-import { fromNow } from "./utils";
+import { fromNow, randomNotionID, randomTodoistID } from "./utils";
 import { NOTION_TOKEN } from ".";
-import {  Task } from "../src/types/task";
+import { NewTask, Task, UpdateTask } from "../src/types/task";
 import { PubsubDetectedEventTypeAttributes, PubsubSources } from "../src/types/pubsub";
 import { getFullNTID } from "../src/utils/general";
 
@@ -116,11 +116,9 @@ describe("notion should reflect the exact state of other services", () => {
         it("creates new Task", async () => {
             const { id } = await newTask(
                 {
-                    done: false,
                     parent: ["fec204bf56ec4abd958654fe93222ec5"],
                     title: "hello world",
-                    labels: ["test"],
-                    id: [""],
+                    id: [randomTodoistID()],
                 },
                 user,
                 notion
@@ -137,7 +135,7 @@ describe("notion should reflect the exact state of other services", () => {
             await expect(
                 updateTask(
                     {
-                        id: [id, "idsudus"],
+                        id: [id, randomTodoistID()],
                         title: randomTitle,
                     },
                     notion
@@ -155,7 +153,7 @@ describe("notion should reflect the exact state of other services", () => {
         });
 
         it.todo("creates new Thought / inbox");
-        
+
     });
 
     describe("updateNotion service", () => {
@@ -164,14 +162,14 @@ describe("notion should reflect the exact state of other services", () => {
             await firestore.createUser(user);
 
             const randomTitle = Math.random().toString();
-
-            await axios.post(path, {
-                done: true,
+            const newTask: NewTask = {
                 id: ["TODOIST_ID"],
                 parent: ["project2"],
                 labels: ["81797"],
                 title: randomTitle,
-            } as Task, {
+            }
+
+            await axios.post(path, newTask, {
                 headers: {
                     attributes: JSON.stringify({
                         source: PubsubSources.Todoist,
@@ -195,12 +193,14 @@ describe("notion should reflect the exact state of other services", () => {
 
         it("updates new Task", async () => {
             const randomTitle = Math.random().toString();
-
-            await axios.post(path, {
-                id: ["TODOIST_ID"],
+            const updatesTask: UpdateTask = {
+                id: [randomTodoistID(), expect.getState().id],
                 labels: ["1522", "81797"],
                 title: randomTitle,
-            } as Task, {
+                done:true,
+            }
+
+            await axios.post(path, updatesTask, {
                 headers: {
                     attributes: JSON.stringify({
                         source: PubsubSources.Todoist,

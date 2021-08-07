@@ -22,6 +22,26 @@ export interface Task {
     done: boolean;
 }
 
+export interface NewTask {
+    parent: NTID; // composed ID (notion_todoist)
+    id: NTID; // required because a Task first got created by either Notion or Todoist and we need to sync that with the other service
+    title: string;
+    descrption?: string;
+    priority?: Priority;
+    labels?: string[];
+    section?: string;
+}
+
+export interface UpdateTask {
+    id: [string, string];
+    title?: string;
+    descrption?: string;
+    priority?: Priority;
+    labels?: string[];
+    section?: string;
+    done?: boolean;
+}
+
 /**
  * minimal information that are stored in DB to indicate whether a task is completd or not, because we need to know if the new update that happened in isNotionUpdated is just an properities update or a task got completed, or new task
  * storing the enite task is data lost since the task circulate within the pubsub

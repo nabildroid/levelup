@@ -8,13 +8,10 @@ import { fromNow } from "./utils";
 const todoist = new TodoistConnector(TODOIST_TOKEN);
 
 
-
-
 it("creates a new todoist task", async () => {
     const randomTitle = Math.random().toString();
     const task = await todoist.createTask({
         content: randomTitle,
-        labels: [],
         priority: fromPriority(Priority.P2),
     });
 
@@ -58,8 +55,8 @@ it("creates a new label", async () => {
     const labels = [Math.random().toString(), Math.random().toString()];
 
 
-    await todoist.createLabel(labels[0]);
-    await todoist.createLabel(labels[1]);
+    expect(await todoist.createLabel(labels[0])).resolves;
+    expect(await todoist.createLabel(labels[1])).resolves;
 
     expect.setState({ labels });
 })
@@ -71,6 +68,4 @@ it("gets all labels", async () => {
 
     expect(fetchedLables).toContainEqual(labels[0]);
     expect(fetchedLables).toContainEqual(labels[1]);
-
-
 })

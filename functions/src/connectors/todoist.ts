@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from "axios";
-import { TodoistNewTask, TodoistTask } from "../types/todoist";
+import { TodoistNewTask, TodoistTask, TodoistTaskUpdate } from "../types/todoist";
 import { dateAcceptedByTodoist } from "../utils/todoistUtils";
 
 export default class TodoistConnector {
@@ -15,6 +15,7 @@ export default class TodoistConnector {
         });
     }
 
+    // todo refactor this shit !
     async checkForNewTask(lastRecentDate: Date): Promise<TodoistTask[]> {
         const params = {
             // todo the filter not working 
@@ -43,7 +44,7 @@ export default class TodoistConnector {
 
     }
 
-    async updateTask(task: Partial<TodoistNewTask> & { id: number }) {
+    async updateTask(task: TodoistTaskUpdate) {
         const path = `/tasks/${task.id}`;
         const data = Object.assign({
             ...task,
