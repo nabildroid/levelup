@@ -68,8 +68,16 @@ export const ensureTodoistTaskIdExists = async (
 
 
 export const extractTodoistIdfromNTID = (id: NTID) => {
-    const found = id[0].length > 5 && id[0].length < 20 ? id[0] : id[1];
-    return parseInt(found as string);
+    if (id.length < 2) throw Error("NTID should contains two values, received " + JSON.stringify(id));
+
+    const [id1, id2] = id;
+    if (typeof id1 == "number")
+        return id1;
+    if (id1.length > 5 && id1.length < 20)
+        return parseInt(id1);
+
+
+    return parseInt(id2 as string);
 };
 
 
@@ -86,3 +94,9 @@ export const translateTodoistLabels = (
         })
         .filter((v) => v) as string[];
 };
+export const dateAcceptedByTodoist = (date: Date) => {
+    const p1 = date.toLocaleDateString();
+    const p2 = date.getHours() + ":" + date.getMinutes();
+
+    return p1 + " " + p2;
+}

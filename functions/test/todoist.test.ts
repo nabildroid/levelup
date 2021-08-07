@@ -2,6 +2,7 @@ import { TODOIST_TOKEN } from ".";
 import TodoistConnector from "../src/connectors/todoist";
 import { Priority } from "../src/types/task";
 import { fromPriority } from "../src/utils/general";
+import { fromNow } from "./utils";
 
 
 const todoist = new TodoistConnector(TODOIST_TOKEN);
@@ -24,6 +25,15 @@ it("creates a new todoist task", async () => {
     expect(task.section_id).toBeFalsy();
 
     expect.setState({ id: task.id });
+});
+
+
+it("checkes for new Tasks",async ()=>{
+    const pages =await todoist.checkForNewTask(fromNow());
+
+    const prevTaskExists = pages.some(pages=>pages.id == expect.getState().id);
+
+    expect(prevTaskExists).toBeTruthy();
 });
 
 it("updates a task", async () => {

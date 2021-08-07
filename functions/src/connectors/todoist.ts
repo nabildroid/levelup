@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 import { TodoistNewTask, TodoistTask } from "../types/todoist";
+import { dateAcceptedByTodoist } from "../utils/todoistUtils";
 
 export default class TodoistConnector {
 
@@ -12,6 +13,21 @@ export default class TodoistConnector {
                 Authorization: `Bearer ${token}`
             }
         });
+    }
+
+    async checkForNewTask(lastRecentDate: Date): Promise<TodoistTask[]> {
+        const params = {
+            // todo the filter not working 
+            // filter: "created after:  " + dateAcceptedByTodoist(lastRecentDate),
+        };
+        const { data } = await this.client.get("/tasks", {
+            params
+        }) as { data: TodoistTask[] };
+
+        return data.map(d => ({
+            ...d,
+            label_ids: d.labels
+        }))
     }
 
 
