@@ -10,7 +10,7 @@ export default class PubsubSubscriber {
 
 
     // todo refactor this function
-    private async createShortPeriodSubscription(topic: Topic, period = 4000): Promise<{ data: any, attributes: any }[]> {
+    private async createShortPeriodSubscription(topic: Topic, period = 8000): Promise<{ data: any, attributes: any }[]> {
         const name = topic.name.split("/").pop()+ Math.random().toString().slice(2,5);
 
         const [sub] = await topic.createSubscription(name);
