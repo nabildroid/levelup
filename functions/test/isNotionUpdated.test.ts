@@ -74,7 +74,6 @@ describe("test if isNotionUpdated sends pubsub events", () => {
 
         await notion.createTask({
             parent: "e7524bb3b85c48bab8e7a8cf10b81ea8",
-            id: "dsds",
             done: false,
             labels: [],
             title: "hello world"

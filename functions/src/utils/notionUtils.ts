@@ -17,7 +17,6 @@ export const newTask = async (task: Task, user: User, notion: Notion) => {
     const response = await notion.createTask({
         ...task,
         parent: parentId,
-        id: task.id[0], // todo useless information
     });
     const { id, last_edited_time } = response;
     // todo  response.last_edited_time must be saved withing the user stuff!
@@ -35,7 +34,6 @@ export const updateTask = async (
     const response = await notion.updateTask({
         ...task,
         id,
-        parent: undefined,
     });
 
     const { last_edited_time } = response;

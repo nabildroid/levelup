@@ -13,7 +13,7 @@ export default functions.https.onRequest(async (req, res) => {
     await Promise.all(
         user.notionDB.map(async (db) => {
             if (db.type == NotionDbType.TASK) {
-                const updatedNotionTasks = await notion.checkForNewTask(db);
+                const updatedNotionTasks = await notion.checkForNewTasks(db);
 
                 updatedNotionTasks.forEach(
                     ({ done, id, priority, labels, parent, title, section }) =>

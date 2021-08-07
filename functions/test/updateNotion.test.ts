@@ -6,7 +6,6 @@ import {
     updateTask,
 } from "../src/utils/notionUtils";
 
-import { translateTodoistLabels } from "../src/utils/todoistUtils";
 
 import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
@@ -14,7 +13,7 @@ import { firestore } from ".";
 import Notion from "../src/connectors/notion";
 import { fromNow } from "./utils";
 import { NOTION_TOKEN } from ".";
-import { Task } from "../src/types/task";
+import {  Task } from "../src/types/task";
 import { PubsubDetectedEventTypeAttributes, PubsubSources } from "../src/types/pubsub";
 import { getFullNTID } from "../src/utils/general";
 
@@ -92,23 +91,7 @@ describe("notion should reflect the exact state of other services", () => {
             }
         });
 
-        it("translatse TodoistLabels IDs to strings", () => {
-            const labels = user.todoistLabel;
-            const labelStrings = Object.values(labels);
-            const labelIds = Object.keys(labels);
 
-            labelIds.forEach((l) => {
-                expect(
-                    translateTodoistLabels(user, labelStrings)
-                ).toContainEqual(l);
-            });
-
-            labelStrings.forEach((l) => {
-                expect(translateTodoistLabels(user, labelIds)).toContainEqual(
-                    l
-                );
-            });
-        });
     });
 
     describe("firebase related helper functions", () => {
@@ -151,7 +134,7 @@ describe("notion should reflect the exact state of other services", () => {
 
             const randomTitle = Math.random().toString();
 
-            expect(
+            await expect(
                 updateTask(
                     {
                         id: [id, "idsudus"],
@@ -161,7 +144,7 @@ describe("notion should reflect the exact state of other services", () => {
                 )
             ).resolves;
 
-            const tasks = await notion.checkForNewTask({
+            const tasks = await notion.checkForNewTasks({
                 id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-1),
                 type: NotionDbType.TASK,
@@ -170,66 +153,69 @@ describe("notion should reflect the exact state of other services", () => {
             expect(tasks.length).toBeGreaterThanOrEqual(1);
             expect(tasks.some((t) => t.id == id)).toBeTruthy();
         });
+
+        it.todo("creates new Thought / inbox");
+        
     });
 
     describe("updateNotion service", () => {
 
-        it("creates new Task",async () =>{
+        it("creates new Task", async () => {
             await firestore.createUser(user);
 
             const randomTitle = Math.random().toString();
 
-            await axios.post(path,{
-                done:true,
-                id:["TODOIST_ID"],
-                parent:["project2"],
-                labels:["81797"],
-                title:randomTitle,
-            } as Task,{
-                headers:{
-                    attributes:JSON.stringify({
-                        source:PubsubSources.Todoist,
-                        type:"new"
+            await axios.post(path, {
+                done: true,
+                id: ["TODOIST_ID"],
+                parent: ["project2"],
+                labels: ["81797"],
+                title: randomTitle,
+            } as Task, {
+                headers: {
+                    attributes: JSON.stringify({
+                        source: PubsubSources.Todoist,
+                        type: "new"
                     } as PubsubDetectedEventTypeAttributes)
                 }
             })
 
-            const tasks = await notion.checkForNewTask({
+            const tasks = await notion.checkForNewTasks({
                 id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-1),
                 type: NotionDbType.TASK,
             });
 
-            const lastTask = tasks.find(t=>t.title == randomTitle);
+            const lastTask = tasks.find(t => t.title == randomTitle);
             expect(lastTask).toBeTruthy();
             expect(lastTask?.labels).toContainEqual(user.todoistLabel[81797])
-            expect.setState({id:lastTask?.id})
+            expect.setState({ id: lastTask?.id })
 
         });
 
-        it("updates new Task",async ()=>{
+        it("updates new Task", async () => {
             const randomTitle = Math.random().toString();
 
-            await axios.post(path,{
-                id:["TODOIST_ID"],
-                labels:["1522","81797"],
-                title:randomTitle,
-            } as Task,{
-                headers:{
-                    attributes:JSON.stringify({
-                        source:PubsubSources.Todoist,
-                        type:"update"
+            await axios.post(path, {
+                id: ["TODOIST_ID"],
+                labels: ["1522", "81797"],
+                title: randomTitle,
+            } as Task, {
+                headers: {
+                    attributes: JSON.stringify({
+                        source: PubsubSources.Todoist,
+                        type: "update"
                     } as PubsubDetectedEventTypeAttributes)
                 }
             })
 
-            const tasks = await notion.checkForNewTask({
+            const tasks = await notion.checkForNewTasks({
                 id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-1),
                 type: NotionDbType.TASK,
             });
 
-            const lastTask = tasks.find(t=>t.title == randomTitle);
+            const lastTask = tasks.find(t => t.title == randomTitle);
             expect(lastTask).toBeTruthy();
             expect(lastTask?.labels).toContainEqual(user.todoistLabel[1522])
             expect(lastTask?.done).toBeTruthy();

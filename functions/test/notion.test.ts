@@ -1,6 +1,6 @@
 import { NOTION_TOKEN } from ".";
 import Notion from "../src/connectors/notion";
-import { NotionDb, NotionDbType, NotionTask, NotionTaskPage } from "../src/types/notion";
+import { NotionDb, NotionDbType, NotionServerSingleTaskResponse, NotionTask, NotionTaskCreate, NotionTaskUpdate } from "../src/types/notion";
 import { Priority } from "../src/types/task";
 
 
@@ -22,7 +22,7 @@ describe("test NotionConnector & NotionAPI", () => {
 
         it("converts Task to accepted NotionAPI format", () => {
 
-            const acceptedFormat = Notion.convertNotionTaskToNotionTaskPage(task);
+            const acceptedFormat = Notion.convertNotionTaskToSingleTaskPageProperties(task);
 
             expect(acceptedFormat).toHaveProperty("done");
             expect(acceptedFormat).toHaveProperty("labels");
@@ -36,7 +36,7 @@ describe("test NotionConnector & NotionAPI", () => {
 
         it("converts Partial Task to accepted NotionAPI format", () => {
             const { done, priority, id, labels, title, section } = task
-            let acceptedFormat = Notion.convertNotionTaskToNotionTaskPage({
+            let acceptedFormat = Notion.convertNotionTaskToSingleTaskPageProperties({
                 done, priority
             });
 
@@ -49,7 +49,7 @@ describe("test NotionConnector & NotionAPI", () => {
             expect(acceptedFormat).not.toHaveProperty("last_edited");
             expect(acceptedFormat).not.toHaveProperty("title");
 
-            acceptedFormat = Notion.convertNotionTaskToNotionTaskPage({
+            acceptedFormat = Notion.convertNotionTaskToSingleTaskPageProperties({
                 title, labels, section
             });
 
@@ -65,12 +65,12 @@ describe("test NotionConnector & NotionAPI", () => {
         it("converts Notion API fromat to Task", () => {
 
             const notionAPIFormat = {
-                properties: Notion.convertNotionTaskToNotionTaskPage(task),
+                properties: Notion.convertNotionTaskToSingleTaskPageProperties(task),
                 id: task.id,
 
-            } as unknown as NotionTaskPage;
+            } as NotionServerSingleTaskResponse;
 
-            const taskFormat = Notion.convertNotionTaskPageToNotionTask({
+            const taskFormat = Notion.convertSingleTaskPageResponseToNotionTask({
                 ...notionAPIFormat,
                 properties: {
                     ...notionAPIFormat.properties,
@@ -80,11 +80,7 @@ describe("test NotionConnector & NotionAPI", () => {
                         last_edited_time: (new Date()).toISOString(),
                     }
                 }
-            }, {
-                id: task.parent,
-                lastRecentDate: new Date(),
-                type: NotionDbType.TASK
-            });
+            }, task.parent);
 
             expect(taskFormat.done).toEqual(task.done);
             expect(taskFormat.id).toEqual(task.id);
@@ -101,9 +97,8 @@ describe("test NotionConnector & NotionAPI", () => {
 
 
     describe("notion API calls", () => {
-        const task: NotionTask = {
+        const task: NotionTaskCreate = {
             done: Math.random() >= 0.5,
-            id: "ID1",
             labels: Math.random() >= 0.5 ? [] : ["label1", "label2"],
             title: "hello world",
             parent: "3c8635f18565489494b0355aa6e041d4",
@@ -112,7 +107,7 @@ describe("test NotionConnector & NotionAPI", () => {
         if (Math.random() >= 0.5) task.priority = Priority.P3;
         if (Math.random() >= 0.5) task.section = "section1";
 
-        const lastRecentDate = new Date( Date.now()  - 100000 );
+        const lastRecentDate = new Date(Date.now() - 100000);
         const db: NotionDb = {
             id: task.parent,
             lastRecentDate,
@@ -130,10 +125,10 @@ describe("test NotionConnector & NotionAPI", () => {
 
         it("checks for new Tasks when it does exists", async () => {
             const { id } = expect.getState();
-            const pages = await notion.checkForNewTask(db);
+            const pages = await notion.checkForNewTasks(db);
 
             expect(pages.length).toBeGreaterThanOrEqual(1);
-            const page = pages.find(p=>p.id == id) as NotionTask;
+            const page = pages.find(p => p.id == id) as NotionTask;
             expect(page).toBeTruthy();
 
             expect(page.id).toEqual(id);
@@ -142,7 +137,7 @@ describe("test NotionConnector & NotionAPI", () => {
             expect(page.priority).toEqual(task.priority);
             expect(page.labels).toEqual(task.labels);
             expect(page.done).toEqual(task.done);
-            
+
             db.lastRecentDate = page.last_edited as Date;
 
 
@@ -150,7 +145,7 @@ describe("test NotionConnector & NotionAPI", () => {
         it("check for new Tasks when it doesn't exits", async () => {
             const lastRecentDate = new Date(Date.now() + 100000);
 
-            const pages = await notion.checkForNewTask({
+            const pages = await notion.checkForNewTasks({
                 ...db,
                 lastRecentDate
             });
@@ -159,23 +154,22 @@ describe("test NotionConnector & NotionAPI", () => {
 
         it("updates Tasks", async () => {
             const { id } = expect.getState();
-            const task: NotionTask = {
+            const task: NotionTaskUpdate = {
                 done: Math.random() >= 0.5,
                 id: "ID1",
                 labels: Math.random() >= 0.4 ? [] : ["Changed1", "Changed2", "Changed3"],
                 title: "UpdatedTitle",
-                parent: "3c8635f18565489494b0355aa6e041d4",
             };
 
             if (Math.random() >= 0.5) task.priority = Priority.P1;
             if (Math.random() >= 0.5) task.section = "tech";
 
-            const page = await notion.updateTask({
+            const page = (await notion.updateTask({
                 ...task,
                 id,
-            })
+            })) as NotionServerSingleTaskResponse;
 
-            const data = Notion.convertNotionTaskPageToNotionTask(page as NotionTaskPage, db)
+            const data = Notion.convertSingleTaskPageResponseToNotionTask(page, db.id)
             expect(data.id).toEqual(id);
             expect(data.title).toEqual(task.title);
             if (task.section) expect(data.section).toEqual(task.section);

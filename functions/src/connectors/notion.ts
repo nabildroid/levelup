@@ -1,11 +1,10 @@
 import { Client } from "@notionhq/client";
 import { InputPropertyValueMap } from "@notionhq/client/build/src/api-endpoints";
-import { InputPropertyValue } from "@notionhq/client/build/src/api-types";
-import { NotionDb, NotionDbType, NotionServerTaskDBReponse, NotionTask, NotionTaskPage } from "../types/notion";
+import { NotionDb, NotionDbType, NotionServerTaskDBReponse, NotionTask, NotionTaskCreate, NotionServerSingleTaskResponse, NotionTaskUpdate } from "../types/notion";
 import { toPriority } from "../utils/general";
 
 export interface INotion {
-    checkForNewTask: (db: NotionDb) => Promise<NotionTask[]>
+    checkForNewTasks: (db: NotionDb) => Promise<NotionTask[]>
 }
 
 
@@ -18,30 +17,31 @@ export default class Notion implements INotion {
 
     }
 
-    private createItem(item: { [key: string]: InputPropertyValue }, database_id: string) {
+    // a general function that creates any NotionDbType
+    private createPage(properties: InputPropertyValueMap, database_id: string) {
         return this.client.pages.create({
             parent: {
                 database_id
             },
-            properties: item
+            properties
         })
     }
 
-    async updateTask(task: Partial<NotionTask> & { id: string }) {
+    async updateTask(task: NotionTaskUpdate) {
         return this.client.pages.update({
             page_id: task.id,
-            properties: Notion.convertNotionTaskToNotionTaskPage(task),
+            properties: Notion.convertNotionTaskToSingleTaskPageProperties(task),
             archived: false,
         })
     }
 
 
-    async createTask(task: NotionTask) {
+    async createTask(task: NotionTaskCreate) {
         // todo needs refactoring someting like that convertNotionTaskPageToNotionTask
-        return this.createItem(Notion.convertNotionTaskToNotionTaskPage(task), task.parent);
+        return this.createPage(Notion.convertNotionTaskToSingleTaskPageProperties(task), task.parent);
     }
 
-    async checkForNewTask(db: NotionDb): Promise<NotionTask[]> {
+    async checkForNewTasks(db: NotionDb): Promise<NotionTask[]> {
         if (db.type != NotionDbType.TASK)
             throw Error(`${db.id} is not of type Tasks`)
 
@@ -53,7 +53,7 @@ export default class Notion implements INotion {
                     {
                         property: "last_edited",
                         date: {
-                            on_or_after:db.lastRecentDate.toISOString(),
+                            on_or_after: db.lastRecentDate.toISOString(),
                         }
                     }
                 ]
@@ -62,14 +62,18 @@ export default class Notion implements INotion {
 
         // todo returns NotionServerTaskDBReponse but it should be flaten 
         return database.results.map(
-            page => Notion.convertNotionTaskPageToNotionTask(page, db)
-        ).filter(({last_edited})=>!last_edited || last_edited >= db.lastRecentDate)
+            page => Notion.convertSingleTaskPageResponseToNotionTask(page, db.id)
+        ).filter(({ last_edited }) =>
+            !last_edited || last_edited >= db.lastRecentDate
+        )
     }
 
-    static convertNotionTaskPageToNotionTask(task: NotionTaskPage, db: NotionDb): NotionTask {
+
+    // todo refactor this please :( !
+    static convertSingleTaskPageResponseToNotionTask(task: NotionServerSingleTaskResponse, parent: string): NotionTask {
         return ({
             id: task.id,
-            parent: db.id,
+            parent,
             title: task.properties.title.title.map(t => t.plain_text).join(" "),
             done: task.properties.done.checkbox,
             labels: task.properties.labels.multi_select.map(s => s.name as string),
@@ -80,57 +84,44 @@ export default class Notion implements INotion {
         })
     }
 
-    static convertNotionTaskToNotionTaskPage(task: Partial<NotionTask>) {
+    // todo is Task a type of NotionTask or NotionTaskUpdate
+    static convertNotionTaskToSingleTaskPageProperties(task: Partial<NotionTask>) {
 
         type NotionTaskProperities = keyof NotionTask;
         const properties: InputPropertyValueMap = {};
 
-
-        Object.keys(task).forEach(key => {
-            // todo use if statement better then the switch
-            switch (key as NotionTaskProperities) {
-                case "title":
-                    properties["title"] = {
-                        type: "title",
-                        title: [
-                            {
-                                type: "text",
-                                text: { content: task.title as string },
-                            },
-                        ],
-                    }
-                    break;
-                case "labels":
-                    properties["labels"] = {
-                        type: "multi_select",
-                        multi_select: (task.labels as string[]).map(l => ({ name: l }))
-                    }
-                    break;
-
-                case "priority":
-                    properties["priority"] = {
-                        type: "select",
-                        select: { name: task.priority as string }
-                    }
-                    break;
-
-                case "section":
-                    properties["section"] = {
-                        type: "select",
-                        select: { name: task.section as string }
-                    }
-                    break;
-
-                case "done":
-                    properties["done"] = {
-                        type: "checkbox",
-                        checkbox: task.done as boolean
-                    }
-                    break;
-
-                default:
-                    break;
-            }
+        const taskPropertyNames = Object.keys(task) as NotionTaskProperities[];
+        taskPropertyNames.forEach(key => {
+            if (key == "title")
+                properties[key] = {
+                    type: "title",
+                    title: [
+                        {
+                            type: "text",
+                            text: { content: task.title as string },
+                        },
+                    ],
+                }
+            else if (key == "labels")
+                properties[key] = {
+                    type: "multi_select",
+                    multi_select: (task.labels as string[]).map(l => ({ name: l }))
+                }
+            else if (key == "priority")
+                properties[key] = {
+                    type: "select",
+                    select: { name: task.priority as string }
+                }
+            else if (key == "section")
+                properties[key] = {
+                    type: "select",
+                    select: { name: task.section as string }
+                }
+            else if (key == "done")
+                properties[key] = {
+                    type: "checkbox",
+                    checkbox: task.done as boolean
+                }
         })
         return properties;
     }
