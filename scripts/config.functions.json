@@ -1,7 +1,8 @@
 {
     "isNotionUpdated": {
         "state": "private",
-        "runEvery": "* 6-23 * * *"
+        "runEvery": "* 6-23 * * *",
+        "serviceAccount": "deployment@levelup-automation.iam.gserviceaccount.com"
     },
     "findWhere": {},
     "validateTask": {},

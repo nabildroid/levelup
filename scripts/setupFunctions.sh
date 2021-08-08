@@ -63,11 +63,12 @@ function fnc(){
         
         # create cloud scheduler
             runEvery=$(echo "$config" | jq ".runEvery")
-            if [[ "$runEvery" != "null" ]]; then
+            serviceAccount=$(echo "$config" | jq ".serviceAccount")
+            if [[ "$runEvery" != "null" && "$serviceAccount" != "null" ]]; then
                 schedulerName="runner_$1"
                 echo $schedulerName | xargs -I {} gcloud scheduler jobs delete {} --quiet
                 
-                echo $endpoint | xargs -I {} -t sh -c   "gcloud scheduler jobs create http $schedulerName --schedule $runEvery --uri {} "
+                echo $endpoint | xargs -I {} -t sh -c   "gcloud scheduler jobs create http $schedulerName --schedule $runEvery --uri {} --oidc-service-account-email  $serviceAccount"
             fi
     fi
 }
