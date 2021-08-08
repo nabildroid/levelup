@@ -32,6 +32,7 @@ steps:
     args:
       - '-c'
       - |
+        chmod a+x ./firebase
         ./firebase deploy --only functions
 
   - name: gcr.io/cloud-builders/gcloud
