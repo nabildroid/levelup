@@ -23,13 +23,13 @@ steps:
     dir: functions
     waitFor:
       - install
-    
-  - name: gcr.io/cloud-builders/gcloud
+  
+  - name: node
     id: deploy
     waitFor:
       - "build"
+    entrypoint: "bash"
     args:
-      - bash
       - '-c'
       - |
         ./firebase deploy --only functions
@@ -38,8 +38,8 @@ steps:
     id: configure
     waitFor:
       - "deploy"
+    entrypoint: "bash"
     args:
-      - bash
       - '-c'
       - |
         chmod a+x ./scripts/setupFunctions.sh
