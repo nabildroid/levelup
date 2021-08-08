@@ -1,6 +1,7 @@
 {
     "isNotionUpdated": {
-        "state": "private"
+        "state": "private",
+        "runEvery": "* 6-23 * * *"
     },
     "findWhere": {},
     "validateTask": {},
