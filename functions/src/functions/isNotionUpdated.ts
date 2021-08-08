@@ -6,7 +6,7 @@ import {firestore} from "..";
 
 
 export default functions.https.onRequest(async (req, res) => {
-    const user = await firestore.lazyLoadUser(req.query.user as string);
+    const user = await firestore.lazyLoadUser(req.query.user as string || "nabil");
 
     const notion: INotion = new Notion(user.auth.notion);
 
