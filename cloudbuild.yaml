@@ -25,7 +25,7 @@ steps:
       - install
     
   - name: gcr.io/cloud-builders/gcloud
-    id: firebase
+    id: deploy
     waitFor:
       - "build"
     args:
@@ -37,7 +37,7 @@ steps:
   - name: gcr.io/cloud-builders/gcloud
     id: configure
     waitFor:
-      - "firebase"
+      - "deploy"
     args:
       - bash
       - '-c'
