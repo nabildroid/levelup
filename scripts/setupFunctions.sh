@@ -13,8 +13,8 @@ function regex1 { gawk 'match($0,/'$1'/, ary) {print ary['${2:-'1'}']}'; }
 
 
 function fnc(){
-
-    config=$(cat "config.functions.json" | jq ".$1")
+    pwd
+    config=$(cat "~/scripts/config.functions.json" | jq ".$1")
 
     if [[ "$config" != "null" ]]; then
         state=$(echo "$config" | jq ".state" | xargs)

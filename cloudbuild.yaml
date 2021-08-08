@@ -2,10 +2,10 @@ steps:
   - name: gcr.io/cloud-builders/wget
     id: firebase
     args:
-      - '--quiet'
-      - '-O'
+      - "--quiet"
+      - "-O"
       - firebase
-      - 'https://firebase.tools/bin/linux/latest'
+      - "https://firebase.tools/bin/linux/latest"
 
   - name: gcr.io/cloud-builders/npm
     id: install
@@ -23,14 +23,14 @@ steps:
     dir: functions
     waitFor:
       - install
-  
+
   - name: node
     id: deploy
     waitFor:
       - "build"
     entrypoint: "bash"
     args:
-      - '-c'
+      - "-c"
       - |
         chmod a+x ./firebase
         ./firebase deploy --only functions
@@ -41,8 +41,8 @@ steps:
       - "deploy"
     entrypoint: "bash"
     args:
-      - '-c'
+      - "-c"
       - |
+        apt update && apt install jq -y 
         chmod a+x ./scripts/setupFunctions.sh
         ./scripts/setupFunctions.sh
-  
