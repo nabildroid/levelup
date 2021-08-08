@@ -1,35 +1,47 @@
 steps:
-  - name: 'gcr.io/cloud-builders/wget'
-    id: "firebase"
+  - name: gcr.io/cloud-builders/wget
+    id: firebase
     args:
       - '--quiet'
       - '-O'
-      - 'firebase'
+      - firebase
       - 'https://firebase.tools/bin/linux/latest'
 
-  - name: "gcr.io/cloud-builders/npm"
-    id: "install"
+  - name: gcr.io/cloud-builders/npm
+    id: install
+    args:
+      - i
+    dir: functions
+    waitFor:
+      - firebase
+
+  - name: gcr.io/cloud-builders/npm
+    id: build
+    args:
+      - run
+      - build
+    dir: functions
+    waitFor:
+      - install
+    
+  - name: gcr.io/cloud-builders/gcloud
+    id: firebase
+    waitFor:
+      - "build"
+    args:
+      - bash
+      - '-c'
+      - |
+        ./firebase deploy --only functions
+
+  - name: gcr.io/cloud-builders/gcloud
+    id: configure
     waitFor:
       - "firebase"
-    dir: "./functions"
     args:
-      - "i"
-  
-  - name: "gcr.io/cloud-builders/npm"
-    id: "build"
-    waitFor:
-      - "install"
-    dir: "./functions"
-    args:
-      - "run"
-      - "build"
-  
-  - name: "node"
-    waitFor:
-      - "build"
-    args:
-      - "bash"
-      - "-c"
+      - bash
+      - '-c'
       - |
-        chmod a+x ./firebase
-        ./firebase deploy --only functions > functions.log
+        chmod a+x ./scripts/setupFunctions.sh
+        ./scripts/setupFunctions.sh
+  

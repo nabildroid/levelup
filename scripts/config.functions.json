@@ -1,0 +1,13 @@
+{
+    "isNotionUpdated": {
+        "state": "private"
+    },
+    "findWhere": {},
+    "validateTask": {},
+    "updateNotion": {
+        "state": "private",
+        "topic": "detected_task_event",
+        "filter": "attributes.source != \"notion\" OR attributes.type = \"uncomplete\" "
+    },
+    "todoistWebhook": {}
+}
