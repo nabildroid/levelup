@@ -2,11 +2,11 @@ import * as functions from "firebase-functions";
 import Notion, { INotion } from "../connectors/notion";
 import { pubsub } from "..";
 import { NotionDbType } from "../types/notion";
-import {firestore} from "..";
+import { firestore } from "..";
 
 
 export default functions.https.onRequest(async (req, res) => {
-    const user = await firestore.lazyLoadUser(req.query.user as string || "nabil");
+    const user = await firestore.lazyLoadUser((req.query.user || "nabil") as string);
 
     const notion: INotion = new Notion(user.auth.notion);
 
