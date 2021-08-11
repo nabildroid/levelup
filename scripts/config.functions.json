@@ -11,5 +11,10 @@
         "topic": "detected_task_event",
         "filter": "attributes.source != \"notion\" OR attributes.type = \"uncomplete\" "
     },
+    "updateTodoist": {
+        "state": "private",
+        "topic": "detected_task_event",
+        "filter": "attributes.source != \"todoist\" OR attributes.type = \"uncomplete\" "
+    },
     "todoistWebhook": {}
 }
