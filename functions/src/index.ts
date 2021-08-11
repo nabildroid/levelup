@@ -18,3 +18,4 @@ export { default as todoistWebhook } from "./functions/todoistWebhook";
 export { default as findWhere } from "./functions/findWhere";
 export { default as validateTask } from "./functions/validateTask";
 export { default as updateNotion } from "./functions/updateNotion";
+export { default as updateTodoist } from "./functions/updateTodoist";
