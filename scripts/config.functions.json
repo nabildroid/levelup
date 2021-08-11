@@ -9,12 +9,14 @@
     "updateNotion": {
         "state": "private",
         "topic": "detected_task_event",
-        "filter": "attributes.source != \"notion\" OR attributes.type = \"uncomplete\" "
+        "filter": "attributes.source != \"notion\" OR attributes.type = \"uncomplete\" ",
+        "serviceAccount": "deployment@levelup-automation.iam.gserviceaccount.com"
     },
     "updateTodoist": {
         "state": "private",
         "topic": "detected_task_event",
-        "filter": "attributes.source != \"todoist\" OR attributes.type = \"uncomplete\" "
+        "filter": "attributes.source != \"todoist\" OR attributes.type = \"uncomplete\" ",
+        "serviceAccount": "deployment@levelup-automation.iam.gserviceaccount.com"
     },
     "todoistWebhook": {}
 }

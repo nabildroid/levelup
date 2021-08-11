@@ -24,6 +24,7 @@ function fnc(){
             fi
         
         endpoint=$(fncEndpoint $1)
+        serviceAccount=$(echo "$config" | jq ".serviceAccount")
         
         # create topics and subscriptions
             topic=$(echo "$config" | jq ".topic")
@@ -57,13 +58,12 @@ function fnc(){
                     echo $subscription_id | xargs -I {} gcloud pubsub subscriptions delete {}
                 fi
 
-                echo $filter | xargs -I {} -t sh -c "gcloud pubsub subscriptions create $subscription_id --topic=$topic --push-endpoint=$endpoint --labels=type=deployment {}"
+                echo $filter | xargs -I {} -t sh -c "gcloud pubsub subscriptions create $subscription_id --topic=$topic --push-endpoint=$endpoint --labels=type=deployment {} --push-auth-service-account=$serviceAccount"
 
             fi
         
         # create cloud scheduler
             runEvery=$(echo "$config" | jq ".runEvery")
-            serviceAccount=$(echo "$config" | jq ".serviceAccount")
             if [[ "$runEvery" != "null" && "$serviceAccount" != "null" ]]; then
                 schedulerName="runner_$1"
                 echo $schedulerName | xargs -I {} gcloud scheduler jobs delete {} --quiet
