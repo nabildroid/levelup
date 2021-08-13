@@ -24,10 +24,19 @@ steps:
     waitFor:
       - install
 
+  - name: gcr.io/cloud-builders/npm
+    id: e2e testing
+    args:
+      - run
+      - test-e2e
+    dir: functions
+    waitFor:
+      - build
+
   - name: node
     id: deploy
     waitFor:
-      - "build"
+      - "e2e testing"
     entrypoint: "bash"
     args:
       - "-c"
