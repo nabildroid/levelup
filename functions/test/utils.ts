@@ -18,3 +18,7 @@ export const getEventByID = (events: { data: any, attributes: any }[], id: strin
         }
     }) as { data: any, attributes: any }
 }
+
+export const pause = async (seconds = 1) => new Promise(res =>
+    setTimeout(res, seconds * 1000)
+);

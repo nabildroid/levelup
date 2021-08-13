@@ -1,8 +1,8 @@
-import { Topic } from "@google-cloud/pubsub";
+import { CreateSubscriptionOptions, Topic } from "@google-cloud/pubsub";
 import PubSubConnector from "../connectors/pubsub";
 
 export default class PubsubSubscriber {
-    private client: PubSubConnector;
+    client: PubSubConnector;
     private subscriptions: (() => Promise<any>)[] = [];
     constructor(client: PubSubConnector) {
         this.client = client;
@@ -10,10 +10,10 @@ export default class PubsubSubscriber {
 
 
     // todo refactor this function
-    private async createShortPeriodSubscription(topic: Topic, period = 8000): Promise<{ data: any, attributes: any }[]> {
-        const name = topic.name.split("/").pop()+ Math.random().toString().slice(2,5);
+    private async createShortPeriodSubscription(topic: Topic, period = 8000, options?: CreateSubscriptionOptions): Promise<{ data: any, attributes: any }[]> {
+        const name = topic.name.split("/").pop() + Math.random().toString().slice(2, 5);
 
-        const [sub] = await topic.createSubscription(name);
+        const [sub] = await topic.createSubscription(name, options);
         await sub.seek(new Date());
 
         this.subscriptions.push(() =>
@@ -46,10 +46,10 @@ export default class PubsubSubscriber {
 
     }
 
-    private async createSubscription(topic: Topic): Promise<{ data: any, attributes: any }> {
+    private async createSubscription(topic: Topic, options?: CreateSubscriptionOptions): Promise<{ data: any, attributes: any }> {
         const name = "a" + Math.random().toString().slice(2);
 
-        const [sub] = await topic.createSubscription(name);
+        const [sub] = await topic.createSubscription(name, options);
 
         await sub.seek(new Date());
         this.subscriptions.push(() =>
@@ -86,9 +86,24 @@ export default class PubsubSubscriber {
     }
 
     findWhere() {
+        // findWhere should emit this event
         return this.createShortPeriodSubscription(
             this.client.getTopic("DETECTED_TASK_EVENT"),
         )
+    }
+
+    async attatchUpdateNotion(pushEndpoint: string) {
+        const name = "a" + Math.random().toString().slice(2);
+        const topic = this.client.getTopic("DETECTED_TASK_EVENT");
+
+        const [sub] = await topic.createSubscription(name, {
+            pushEndpoint,
+            filter: "attributes.source != \"notion\" OR attributes.type = \"uncomplete\""
+        });
+        await sub.seek(new Date());
+        const detatch = async () => await topic.subscription(name).delete();
+        this.subscriptions.push(detatch);
+        return detatch;
     }
 
     async clear() {

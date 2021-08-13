@@ -10,9 +10,9 @@ import { translateTodoistLabels } from "../src/utils/todoistUtils";
 
 import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
-import { firestore } from ".";
+import { firestore, pubscriber } from ".";
 import Notion from "../src/connectors/notion";
-import { fromNow } from "./utils";
+import { fromNow, pause } from "./utils";
 import { NOTION_TOKEN } from ".";
 import { Task } from "../src/types/task";
 import { PubsubDetectedEventTypeAttributes, PubsubSources } from "../src/types/pubsub";
@@ -62,6 +62,7 @@ const user: User = {
 
 beforeAll(async () => {
     await firestore.clear();
+    await pubscriber.clear();
 });
 describe("notion should reflect the exact state of other services", () => {
     describe("helper functions", () => {
@@ -177,25 +178,24 @@ describe("notion should reflect the exact state of other services", () => {
 
     describe("updateNotion service", () => {
 
-        it("creates new Task",async () =>{
+        it("creates new Task", async () => {
             await firestore.createUser(user);
 
             const randomTitle = Math.random().toString();
 
-            await axios.post(path,{
-                done:true,
-                id:["TODOIST_ID"],
-                parent:["project2"],
-                labels:["81797"],
-                title:randomTitle,
-            } as Task,{
-                headers:{
-                    attributes:JSON.stringify({
-                        source:PubsubSources.Todoist,
-                        type:"new"
-                    } as PubsubDetectedEventTypeAttributes)
-                }
+            const detatch = await pubscriber.attatchUpdateNotion(path);
+            await pubscriber.client.detectedEventType({
+                done: true,
+                id: ["TODOIST_ID"],
+                parent: ["project2"],
+                labels: ["81797"],
+                title: randomTitle,
+            }, {
+                source: PubsubSources.Todoist,
+                type: "new"
             })
+            await pause(3);
+            await detatch();
 
             const tasks = await notion.checkForNewTask({
                 id: "fec204bf56ec4abd958654fe93222ec5",
@@ -203,36 +203,36 @@ describe("notion should reflect the exact state of other services", () => {
                 type: NotionDbType.TASK,
             });
 
-            const lastTask = tasks.find(t=>t.title == randomTitle);
+            const lastTask = tasks.find(t => t.title == randomTitle);
             expect(lastTask).toBeTruthy();
             expect(lastTask?.labels).toContainEqual(user.todoistLabel[81797])
-            expect.setState({id:lastTask?.id})
-
+            expect.setState({ id: lastTask?.id })
         });
 
-        it("updates new Task",async ()=>{
+        it("updates new Task", async () => {
             const randomTitle = Math.random().toString();
 
-            await axios.post(path,{
-                id:["TODOIST_ID"],
-                labels:["1522","81797"],
-                title:randomTitle,
-            } as Task,{
-                headers:{
-                    attributes:JSON.stringify({
-                        source:PubsubSources.Todoist,
-                        type:"update"
-                    } as PubsubDetectedEventTypeAttributes)
-                }
+            const detatch = await pubscriber.attatchUpdateNotion(path);
+            await pubscriber.client.detectedEventType({
+                id: ["TODOIST_ID"],
+                labels: ["1522", "81797"],
+                title: randomTitle,
+            }, {
+                source: PubsubSources.Todoist,
+                type: "update"
             })
+            await pause(3);
+            await detatch();
 
             const tasks = await notion.checkForNewTask({
                 id: "fec204bf56ec4abd958654fe93222ec5",
-                lastRecentDate: fromNow(-1),
+                lastRecentDate: fromNow(-2),
                 type: NotionDbType.TASK,
             });
 
-            const lastTask = tasks.find(t=>t.title == randomTitle);
+            console.log(tasks);
+
+            const lastTask = tasks.find(t => t.title == randomTitle);
             expect(lastTask).toBeTruthy();
             expect(lastTask?.labels).toContainEqual(user.todoistLabel[1522])
             expect(lastTask?.done).toBeTruthy();

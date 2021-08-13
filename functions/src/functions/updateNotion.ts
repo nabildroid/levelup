@@ -7,14 +7,16 @@ import {
 } from "../types/pubsub";
 import { NTID, Task } from "../types/task";
 import { ensureNotionTaskIdExists, newTask, updateTask } from "../utils/notionUtils";
-import {translateTodoistLabels} from "../utils/todoistUtils";
+import { translateTodoistLabels } from "../utils/todoistUtils";
 
 export default functions.https.onRequest(async (req, res) => {
-    const attributes = JSON.parse(
-        req.headers.attributes as string
-    ) as PubsubDetectedEventTypeAttributes;
+    const message = req.body.message as { attributes: object, data: string };
+
+    const attributes = message.attributes as PubsubDetectedEventTypeAttributes;
     console.log(attributes);
-    const body = req.body as { id: NTID } | Task;
+    const rawBody = Buffer.from(message.data, 'base64').toString('utf-8'); const body = JSON.parse(rawBody) as { id: NTID } | Task;
+    console.log(body);
+
     // todo use User.todoistProject to find the right userId
     const user = await firestore.lazyLoadUser("nabil");
     const notion = new Notion(user.auth.notion);
@@ -26,7 +28,7 @@ export default functions.https.onRequest(async (req, res) => {
             done: attributes.type == "complete",
         };
 
-        const {} = await updateTask(task, notion);
+        const { } = await updateTask(task, notion);
     } else {
         const task = body as Task;
 
@@ -36,9 +38,9 @@ export default functions.https.onRequest(async (req, res) => {
 
         if (attributes.type == "new") {
             const { id } = await newTask(task, user, notion);
-            console.log("New Task Id ["+id);
+            console.log("New Task Id [" + id);
             await firestore.saveNewTask([task.id[0], id], "nabil");
-            console.log("Stored task ",[task.id[0], id]);
+            console.log("Stored task ", [task.id[0], id]);
         } else if (attributes.type == "update") {
             console.log("Updating ...");
             const id = await ensureNotionTaskIdExists(task.id, firestore);

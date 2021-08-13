@@ -121,7 +121,7 @@ describe("test findwhere, a event type detector", () => {
         const attributes = event.attributes as PubsubDetectedEventTypeAttributes;
 
         expect(attributes.type).toEqual("update");
-        const data = JSON.parse(Buffer.from(event.data).toString()) as Task;
+        const data = JSON.parse(Buffer.from(event.data, "base64").toString("utf8")) as Task;
 
         expect(data.id).toEqual(expect.getState().id)
         expect(data.title).toEqual(task.title);
@@ -163,7 +163,7 @@ describe("test findwhere, a event type detector", () => {
         const attributes = event.attributes as PubsubDetectedEventTypeAttributes;
 
         expect(attributes.type).toEqual("complete");
-        const data = JSON.parse(Buffer.from(event.data).toString()) as NTID;
+        const data = JSON.parse(Buffer.from(event.data, "base64").toString("utf8")) as NTID;
 
         expect(data).toEqual(expect.getState().id)
 

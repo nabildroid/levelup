@@ -24,7 +24,7 @@ export type PubsubValidateTaskAttributes = {
 
 export type PubsubDetectedEventTypeMessageType = {
     new: Task,
-    update: Task,
+    update: Partial<Task>,
     complete: NTID,
     uncomplete: NTID,
 }
