@@ -92,18 +92,33 @@ export default class PubsubSubscriber {
         )
     }
 
-    async attatchUpdateNotion(pushEndpoint: string) {
+    private async attachToEndPoint(topic: Topic, pushEndpoint: string, filter?: string) {
         const name = "a" + Math.random().toString().slice(2);
-        const topic = this.client.getTopic("DETECTED_TASK_EVENT");
 
         const [sub] = await topic.createSubscription(name, {
             pushEndpoint,
-            filter: "attributes.source != \"notion\" OR attributes.type = \"uncomplete\""
+            filter
         });
         await sub.seek(new Date());
         const detatch = async () => await topic.subscription(name).delete();
         this.subscriptions.push(detatch);
         return detatch;
+    }
+
+    attatchUpdateNotion(pushEndpoint: string) {
+        return this.attachToEndPoint(
+            this.client.getTopic("DETECTED_TASK_EVENT"),
+            pushEndpoint,
+            "attributes.source != \"notion\" OR attributes.type = \"uncomplete\""
+        )
+    }
+
+    attatchUpdateTodoist(pushEndpoint: string) {
+        return this.attachToEndPoint(
+            this.client.getTopic("DETECTED_TASK_EVENT"),
+            pushEndpoint,
+            "attributes.source != \"todoist\" OR attributes.type = \"uncomplete\""
+        )
     }
 
     async clear() {
