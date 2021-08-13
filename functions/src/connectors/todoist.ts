@@ -37,7 +37,8 @@ export default class TodoistConnector {
     async createTask(task: TodoistNewTask): Promise<TodoistTask> {
         const response = await this.client.post("/tasks", {
             ...task,
-            label_ids: task.labels
+            label_ids: task.labels,
+            project_id: task.project_id && parseInt(task.project_id)
         })
 
         const data = response.data as TodoistTask;
