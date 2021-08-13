@@ -52,11 +52,12 @@ export default class FirestoreConnector {
         return query.docs[0]?.data() as StoredTask;
     }
 
-    async saveNewTask(id: NTID, user: string) {
+    async saveNewTask(id: [string, string], user: string) {
         const task: StoredTask = {
             id, user,
             completed: false
         }
+        console.log(task);
 
         await this.client.collection("/tasks").add(task);
     }

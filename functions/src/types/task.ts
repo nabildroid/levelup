@@ -46,12 +46,12 @@ export interface UpdateTask {
  * minimal information that are stored in DB to indicate whether a task is completd or not, because we need to know if the new update that happened in isNotionUpdated is just an properities update or a task got completed, or new task
  * storing the enite task is data lost since the task circulate within the pubsub
  * insterted into firestore by ValidateTask service
- * @attribute id an array that contains at max two ids
+ * @attribute id an array that contains all the two ids
  * @attribute user user id https://www.notion.so/laknabil/do-i-really-need-to-store-the-entire-task-information-600c939da1884ccab583e1c65c8a47d2#9bfa000763944b0dac0a33287ddfa2ce
  */
 
 export interface StoredTask {
-    id: NTID;
+    id: [string, string];
     user: string;
     completed: boolean
 }
