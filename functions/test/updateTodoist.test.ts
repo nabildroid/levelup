@@ -9,7 +9,7 @@ import {
 import { translateTodoistLabels } from "../src/utils/todoistUtils";
 
 import { User } from "../src/types/user";
-import { firestore } from ".";
+import { firestore, pubscriber } from ".";
 import TodoistConnector from "../src/connectors/todoist";
 
 import { fromNow, pause } from "./utils";
@@ -52,8 +52,8 @@ const user: User = {
     },
     // todo neither the Inbox nor NotionThoughts exists here !!!
     todoistProjects: [
-        ["2267007167", "64559c948e28454082785ccb2bc6b6a5"],
-        ["64559c948e28454082785ccb2bc6b6a5", "2267007167"],
+        ["2271415580", "64559c948e28454082785ccb2bc6b6a5"],
+        ["64559c948e28454082785ccb2bc6b6a5", "2271415580"],
     ],
 };
 
@@ -65,7 +65,7 @@ beforeAll(async () => {
 describe("todoist should reflect the exact state of other services", () => {
     describe("helper functions", () => {
         it("extracts TodoistID from NTID", () => {
-            const todoistID = "1524444";
+            const todoistID = "2271415580";
             expect(extractTodoistIdfromNTID(["64559c948e28454082785ccb2bc6b6a5", todoistID])).toEqual(
                 todoistID
             );
@@ -186,7 +186,7 @@ describe("todoist should reflect the exact state of other services", () => {
         });
     });
 
-    describe("updateNotion service", () => {
+    describe("updateTodoist service", () => {
         beforeAll(async () => {
             await firestore.clear();
         })
@@ -200,16 +200,15 @@ describe("todoist should reflect the exact state of other services", () => {
                 parent: ["64559c948e28454082785ccb2bc6b6a5"],
                 title: randomTitle,
             };
+            const detatch = await pubscriber.attatchUpdateTodoist(path);
+            pubscriber.client.detectedEventType(newTask,{
+                source:PubsubSources.Notion,
+                type:"new",
+            });
 
-            await axios.post(path, newTask, {
-                headers: {
-                    attributes: JSON.stringify({
-                        source: PubsubSources.Notion,
-                        type: "new"
-                    } as PubsubDetectedEventTypeAttributes)
-                }
-            })
-
+            await pause(3);
+            await detatch();
+            
             const tasks = await todoist.checkForNewTask(fromNow(-1).toDate());
 
             const lastTask = tasks.find(t => t.content == randomTitle);
@@ -225,15 +224,15 @@ describe("todoist should reflect the exact state of other services", () => {
                 title: randomTitle,
             };
 
-            await axios.post(path, updatedTask, {
-                headers: {
-                    attributes: JSON.stringify({
-                        source: PubsubSources.Notion,
-                        type: "update"
-                    } as PubsubDetectedEventTypeAttributes)
-                }
-            })
+            const detatch = await pubscriber.attatchUpdateTodoist(path);
+            pubscriber.client.detectedEventType(updatedTask,{
+                source:PubsubSources.Notion,
+                type:"update",
+            });
 
+            await pause(3);
+            await detatch();
+            
             const tasks = await todoist.checkForNewTask(fromNow(-1).toDate());
 
             const lastTask = tasks.find(t => t.content == randomTitle);

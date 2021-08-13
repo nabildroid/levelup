@@ -9,12 +9,13 @@ import { NTID, Task } from "../types/task";
 import { ensureTodoistTaskIdExists, translateTodoistLabels, newTask, updateTask, extractTodoistIdfromNTID } from "../utils/todoistUtils";
 
 export default functions.https.onRequest(async (req, res) => {
-    const attributes = JSON.parse(
-        req.headers.attributes as string
-    ) as PubsubDetectedEventTypeAttributes;
+    const message = req.body.message as { attributes: object, data: string };
+
+    const attributes = message.attributes as PubsubDetectedEventTypeAttributes;
     console.log(attributes);
-    const body = req.body as { id: NTID } | Task;
+    const rawBody = Buffer.from(message.data, 'base64').toString('utf-8'); const body = JSON.parse(rawBody) as { id: NTID } | Task;
     console.log(body);
+
     // todo use User.todoistProject to find the right userId
     const user = await firestore.lazyLoadUser("nabil");
     const todoist = new TodoistConnector(user.auth.todoist);
