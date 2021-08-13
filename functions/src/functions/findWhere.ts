@@ -24,7 +24,7 @@ export default functions.pubsub
             })
         } else {
             if (!storedTask.completed && data.done) {
-                pubsub.validateTask(data.id, attribute.source);
+                pubsub.validateTask(storedTask.id, attribute.source);
 
             } else {
                 pubsub.detectedEventType({

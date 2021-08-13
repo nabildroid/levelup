@@ -72,7 +72,7 @@ export default class PubSubConnector {
 
         return this.client.topic(
             PubSubConnector.pubsubTopics.VALIDATE_TASK
-        ).publishJSON(taskId, attribute);
+        ).publishJSON({ id: taskId }, attribute);
     }
 
     detectedEventType<T extends PubsubDetectedEventTypeAttributes>(data: PubsubDetectedEventTypeMessageType[T["type"]], attribute: T) {
