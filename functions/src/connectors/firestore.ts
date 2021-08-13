@@ -33,7 +33,7 @@ export default class FirestoreConnector {
                     auth: data.auth,
                     notionDB: data.notionDB.map((db) => ({
                         ...db,
-                        lastRecentDate: (db.lastRecentDate as unknown as FirebaseFirestore.Timestamp).toDate()
+                        lastRecentDate: db.lastRecentDate
                     })),
                     todoistLabel: data.todoistLabel,
                     todoistProjects: objectToNestedArray(data.todoistProjects)
@@ -67,7 +67,7 @@ export default class FirestoreConnector {
             ...user,
             notionDB: user.notionDB.map((db) => ({
                 ...db,
-                lastRecentDate: db.lastRecentDate.toISOString(),
+                lastRecentDate: db.lastRecentDate
             })),
             todoistProjects: nestedArrayToObject(user.todoistProjects)
         });

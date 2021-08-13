@@ -3,6 +3,7 @@ import { firestore } from ".";
 import { StoredTask } from "../src/types/task";
 import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
+import { fromNow } from "./utils";
 
 
 beforeAll(async () => {
@@ -20,17 +21,17 @@ describe("test firestore Conector functionalities", () => {
             notionDB: [{
                 id: "db1",
                 type: NotionDbType.TASK,
-                lastRecentDate: new Date()
+                lastRecentDate: fromNow()
             },
             {
                 id: "db2",
                 type: NotionDbType.TASK,
-                lastRecentDate: new Date()
+                lastRecentDate: fromNow()
             },
             {
                 id: "db3",
                 type: NotionDbType.THOUGHT,
-                lastRecentDate: new Date()
+                lastRecentDate: fromNow()
             }],
             todoistLabel: {
                 1532: "label1",

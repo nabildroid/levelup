@@ -1,6 +1,11 @@
 import { NTID, Task } from "../src/types/task";
+import { firestore } from "firebase-admin";
 
-export const fromNow = (mins = 0) => new Date(Date.now() + (mins * 60) * 1000);
+
+export const fromNow = (mins = 0) => firestore.Timestamp.fromDate(
+    new Date(Date.now() + (mins * 60) * 1000)
+);
+
 
 export const getEventByID = (events: { data: any, attributes: any }[], id: string) => {
 

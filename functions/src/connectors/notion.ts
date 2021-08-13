@@ -53,7 +53,7 @@ export default class Notion implements INotion {
                     {
                         property: "last_edited",
                         date: {
-                            on_or_after:db.lastRecentDate.toISOString(),
+                            on_or_after: db.lastRecentDate.toDate().toISOString(),
                         }
                     }
                 ]
@@ -63,7 +63,7 @@ export default class Notion implements INotion {
         // todo returns NotionServerTaskDBReponse but it should be flaten 
         return database.results.map(
             page => Notion.convertNotionTaskPageToNotionTask(page, db)
-        ).filter(({last_edited})=>!last_edited || last_edited >= db.lastRecentDate)
+        ).filter(({ last_edited }) => !last_edited || last_edited >= db.lastRecentDate.toDate())
     }
 
     static convertNotionTaskPageToNotionTask(task: NotionTaskPage, db: NotionDb): NotionTask {

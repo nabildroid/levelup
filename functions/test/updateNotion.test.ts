@@ -35,17 +35,17 @@ const user: User = {
         {
             id: "fec204bf56ec4abd958654fe93222ec5",
             type: NotionDbType.TASK,
-            lastRecentDate: new Date(),
+            lastRecentDate: fromNow(),
         },
         {
             id: "fec204bf56ec4abd958654fe93222ec5",
             type: NotionDbType.TASK,
-            lastRecentDate: new Date(),
+            lastRecentDate: fromNow(),
         },
         {
             id: "a29912913c7a4357a43938f0f6f0ccdd",
             type: NotionDbType.THOUGHT,
-            lastRecentDate: new Date(),
+            lastRecentDate: fromNow(),
         },
     ],
     todoistLabel: {
@@ -60,6 +60,9 @@ const user: User = {
     ],
 };
 
+beforeAll(async () => {
+    await firestore.clear();
+});
 describe("notion should reflect the exact state of other services", () => {
     describe("helper functions", () => {
         it("extracts NotionID from NTID", () => {
