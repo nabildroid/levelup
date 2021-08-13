@@ -103,7 +103,7 @@ describe("notion should reflect the exact state of other services", () => {
             await firestore.clear();
         });
         it("ensures both Todoist & Notion IDs exists", async () => {
-            const p1 = user.todoistProjects[0];
+            const p1 = user.todoistProjects[0] as [string,string];
 
             await firestore.saveNewTask(p1, "nabil");
 
@@ -161,7 +161,7 @@ describe("notion should reflect the exact state of other services", () => {
     });
 
     describe("updateNotion service", () => {
-
+        beforeAll(async () => await firestore.clear());
         it("creates new Task", async () => {
             await firestore.createUser(user);
 
@@ -174,13 +174,7 @@ describe("notion should reflect the exact state of other services", () => {
             }
 
             const detatch = await pubscriber.attatchUpdateNotion(path);
-            await pubscriber.client.detectedEventType({
-                done: true,
-                id: ["TODOIST_ID"],
-                parent: ["project2"],
-                labels: ["81797"],
-                title: randomTitle,
-            }, {
+            await pubscriber.client.detectedEventType(newTask, {
                 source: PubsubSources.Todoist,
                 type: "new"
             })
@@ -198,28 +192,24 @@ describe("notion should reflect the exact state of other services", () => {
             expect(lastTask?.labels).toContainEqual(user.todoistLabel[81797])
             expect.setState({ id: lastTask?.id })
 
-          
+
         });
 
         it("updates new Task", async () => {
             const randomTitle = Math.random().toString();
             const updatesTask: UpdateTask = {
-                id: [randomTodoistID(), expect.getState().id],
+                id: ["TODOIST_ID", expect.getState().id],
                 labels: [1522, 81797],
                 title: randomTitle,
-                done:true,
+                done: true,
             }
 
             const detatch = await pubscriber.attatchUpdateNotion(path);
-            await pubscriber.client.detectedEventType({
-                id: ["TODOIST_ID"],
-                labels: ["1522", "81797"],
-                title: randomTitle,
-            }, {
+            await pubscriber.client.detectedEventType(updatesTask, {
                 source: PubsubSources.Todoist,
                 type: "update"
-
             })
+
             await pause(3);
             await detatch();
 

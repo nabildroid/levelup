@@ -5,7 +5,7 @@ import { NotionDbType } from "../src/types/notion";
 import { PubsubDetectedEventTypeAttributes } from "../src/types/pubsub";
 import { NTID, Task } from "../src/types/task";
 import { User } from "../src/types/user";
-import { fromNow, getEventByID } from "./utils";
+import { fromNow, getEventByID, randomTodoistID } from "./utils";
 
 
 const notion = new Notion(NOTION_TOKEN);
@@ -18,7 +18,7 @@ const path = (name: string, args: string = "") => `http://localhost:5001/${proje
 
 
 
-
+beforeAll(async () => firestore.clear());
 describe("test findwhere, a event type detector", () => {
 
 
@@ -107,11 +107,11 @@ describe("test findwhere, a event type detector", () => {
             }],
             todoistLabel: {},
             todoistProjects: []
-        } as User;
+        };
 
         await firestore.createUser(userData);
-        await firestore.saveNewTask(expect.getState().id as NTID, "nabil");
 
+        await firestore.saveNewTask([expect.getState().id[0], randomTodoistID()], "nabil");
         axios.get(path("isNotionUpdated", "?user=nabil"))
 
         const events = await pubscriber.findWhere();
@@ -123,7 +123,7 @@ describe("test findwhere, a event type detector", () => {
         expect(attributes.type).toEqual("update");
         const data = JSON.parse(Buffer.from(event.data, "base64").toString("utf8")) as Task;
 
-        expect(data.id).toEqual(expect.getState().id)
+        expect(data.id).toContainEqual(expect.getState().id[0])
         expect(data.title).toEqual(task.title);
         expect(data.parent).toEqual([task.parent]);
     });
@@ -131,22 +131,7 @@ describe("test findwhere, a event type detector", () => {
     it("detects completed tasks", async () => {
 
 
-        const userData = {
-            auth: {
-                notion: NOTION_TOKEN,
-                todoist: "todoistAuth",
-            },
-            notionDB: [{
-                id: "a29912913c7a4357a43938f0f6f0ccf5",
-                type: NotionDbType.TASK,
-                lastRecentDate: fromNow(-1),
-            }],
-            todoistLabel: {},
-            todoistProjects: []
-        } as User;
 
-        await firestore.createUser(userData);
-        await firestore.saveNewTask(expect.getState().id as NTID, "nabil");
 
         await notion.updateTask({
             ...task,
@@ -163,9 +148,9 @@ describe("test findwhere, a event type detector", () => {
         const attributes = event.attributes as PubsubDetectedEventTypeAttributes;
 
         expect(attributes.type).toEqual("complete");
-        const data = JSON.parse(Buffer.from(event.data, "base64").toString("utf8")) as NTID;
+        const data = JSON.parse(Buffer.from(event.data, "base64").toString("utf8")) as {id:NTID};
 
-        expect(data).toEqual(expect.getState().id)
+        expect(data.id).toContainEqual(expect.getState().id[0])
 
     });
 

@@ -26,7 +26,7 @@ it("creates a new todoist task", async () => {
 
 
 it("checkes for new Tasks",async ()=>{
-    const pages =await todoist.checkForNewTask(fromNow());
+    const pages =await todoist.checkForNewTask(fromNow().toDate());
 
     const prevTaskExists = pages.some(pages=>pages.id == expect.getState().id);
 
