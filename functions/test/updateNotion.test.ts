@@ -9,9 +9,9 @@ import {
 
 import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
-import { firestore } from ".";
+import { firestore, pubscriber } from ".";
 import Notion from "../src/connectors/notion";
-import { fromNow, randomNotionID, randomTodoistID } from "./utils";
+import { fromNow, pause, randomNotionID, randomTodoistID } from "./utils";
 import { NOTION_TOKEN } from ".";
 import { NewTask, Task, UpdateTask } from "../src/types/task";
 import { PubsubDetectedEventTypeAttributes, PubsubSources } from "../src/types/pubsub";
@@ -34,17 +34,17 @@ const user: User = {
         {
             id: "fec204bf56ec4abd958654fe93222ec5",
             type: NotionDbType.TASK,
-            lastRecentDate: new Date(),
+            lastRecentDate: fromNow(),
         },
         {
             id: "fec204bf56ec4abd958654fe93222ec5",
             type: NotionDbType.TASK,
-            lastRecentDate: new Date(),
+            lastRecentDate: fromNow(),
         },
         {
             id: "a29912913c7a4357a43938f0f6f0ccdd",
             type: NotionDbType.THOUGHT,
-            lastRecentDate: new Date(),
+            lastRecentDate: fromNow(),
         },
     ],
     todoistLabel: {
@@ -59,6 +59,10 @@ const user: User = {
     ],
 };
 
+beforeAll(async () => {
+    await firestore.clear();
+    await pubscriber.clear();
+});
 describe("notion should reflect the exact state of other services", () => {
     describe("helper functions", () => {
         it("extracts NotionID from NTID", () => {
@@ -99,7 +103,7 @@ describe("notion should reflect the exact state of other services", () => {
             await firestore.clear();
         });
         it("ensures both Todoist & Notion IDs exists", async () => {
-            const p1 = user.todoistProjects[0];
+            const p1 = user.todoistProjects[0] as [string,string];
 
             await firestore.saveNewTask(p1, "nabil");
 
@@ -157,7 +161,7 @@ describe("notion should reflect the exact state of other services", () => {
     });
 
     describe("updateNotion service", () => {
-
+        beforeAll(async () => await firestore.clear());
         it("creates new Task", async () => {
             await firestore.createUser(user);
 
@@ -169,14 +173,13 @@ describe("notion should reflect the exact state of other services", () => {
                 title: randomTitle,
             }
 
-            await axios.post(path, newTask, {
-                headers: {
-                    attributes: JSON.stringify({
-                        source: PubsubSources.Todoist,
-                        type: "new"
-                    } as PubsubDetectedEventTypeAttributes)
-                }
+            const detatch = await pubscriber.attatchUpdateNotion(path);
+            await pubscriber.client.detectedEventType(newTask, {
+                source: PubsubSources.Todoist,
+                type: "new"
             })
+            await pause(3);
+            await detatch();
 
             const tasks = await notion.checkForNewTasks({
                 id: "fec204bf56ec4abd958654fe93222ec5",
@@ -189,29 +192,30 @@ describe("notion should reflect the exact state of other services", () => {
             expect(lastTask?.labels).toContainEqual(user.todoistLabel[81797])
             expect.setState({ id: lastTask?.id })
 
+
         });
 
         it("updates new Task", async () => {
             const randomTitle = Math.random().toString();
             const updatesTask: UpdateTask = {
-                id: [randomTodoistID(), expect.getState().id],
+                id: ["TODOIST_ID", expect.getState().id],
                 labels: [1522, 81797],
                 title: randomTitle,
-                done:true,
+                done: true,
             }
 
-            await axios.post(path, updatesTask, {
-                headers: {
-                    attributes: JSON.stringify({
-                        source: PubsubSources.Todoist,
-                        type: "update"
-                    } as PubsubDetectedEventTypeAttributes)
-                }
+            const detatch = await pubscriber.attatchUpdateNotion(path);
+            await pubscriber.client.detectedEventType(updatesTask, {
+                source: PubsubSources.Todoist,
+                type: "update"
             })
+
+            await pause(3);
+            await detatch();
 
             const tasks = await notion.checkForNewTasks({
                 id: "fec204bf56ec4abd958654fe93222ec5",
-                lastRecentDate: fromNow(-1),
+                lastRecentDate: fromNow(-2),
                 type: NotionDbType.TASK,
             });
 

@@ -12,16 +12,16 @@ export default functions.pubsub
     .onPublish(async (message, context) => {
         const attribute = message.attributes as PubsubValidateTaskAttributes;
         const { id } = message.json as { id: NTID }
-
+        console.log('Validating ' + id + " .....");
         const isValide = await stillRemainingPomodoros(id);
 
         if (isValide) {
-            pubsub.detectedEventType(id, {
+            pubsub.detectedEventType({id}, {
                 source: attribute.source,
                 type: "complete"
             })
         } else {
-            pubsub.detectedEventType(id, {
+            pubsub.detectedEventType({id}, {
                 source: attribute.source,
                 type: "uncomplete"
             })

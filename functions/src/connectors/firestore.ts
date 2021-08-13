@@ -33,7 +33,7 @@ export default class FirestoreConnector {
                     auth: data.auth,
                     notionDB: data.notionDB.map((db) => ({
                         ...db,
-                        lastRecentDate: new Date(db.lastRecentDate)
+                        lastRecentDate: db.lastRecentDate
                     })),
                     todoistLabel: data.todoistLabel,
                     todoistProjects: objectToNestedArray(data.todoistProjects)
@@ -52,11 +52,12 @@ export default class FirestoreConnector {
         return query.docs[0]?.data() as StoredTask;
     }
 
-    async saveNewTask(id: NTID, user: string) {
+    async saveNewTask(id: [string, string], user: string) {
         const task: StoredTask = {
             id, user,
             completed: false
         }
+        console.log(task);
 
         await this.client.collection("/tasks").add(task);
     }
@@ -67,7 +68,7 @@ export default class FirestoreConnector {
             ...user,
             notionDB: user.notionDB.map((db) => ({
                 ...db,
-                lastRecentDate: db.lastRecentDate.toISOString(),
+                lastRecentDate: db.lastRecentDate
             })),
             todoistProjects: nestedArrayToObject(user.todoistProjects)
         });

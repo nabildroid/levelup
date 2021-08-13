@@ -1,6 +1,6 @@
 import { PubSub, Topic } from "@google-cloud/pubsub";
 import { PubsubDetectedEventTypeAttributes, PubsubSources, PubsubInsertTaskAttributes, PubsubValidateTaskAttributes, PubsubDetectedEventTypeMessageType } from "../types/pubsub";
-import { Task } from "../types/task";
+import { NTID, Task } from "../types/task";
 import isDev from "../utils/isDev";
 
 
@@ -64,15 +64,15 @@ export default class PubSubConnector {
     }
 
 
-    validateTask(task: Task, source: PubsubSources) {
-        this.log("validating " + task.id);
+    validateTask(taskId: NTID, source: PubsubSources) {
+        this.log("validating " + taskId);
         const attribute: PubsubValidateTaskAttributes = {
             source
         }
 
         return this.client.topic(
             PubSubConnector.pubsubTopics.VALIDATE_TASK
-        ).publishJSON(task, attribute);
+        ).publishJSON({ id: taskId }, attribute);
     }
 
     detectedEventType<T extends PubsubDetectedEventTypeAttributes>(data: PubsubDetectedEventTypeMessageType[T["type"]], attribute: T) {

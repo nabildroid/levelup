@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import { pubsub } from "..";
-import {firestore} from "..";
+import { firestore } from "..";
 import PubSubConnector from "../connectors/pubsub";
 import { PubsubInsertTaskAttributes } from "../types/pubsub";
 import { Task } from "../types/task";
@@ -24,10 +24,13 @@ export default functions.pubsub
             })
         } else {
             if (!storedTask.completed && data.done) {
-                pubsub.validateTask(data, attribute.source);
+                pubsub.validateTask(storedTask.id, attribute.source);
 
             } else {
-                pubsub.detectedEventType(data, {
+                pubsub.detectedEventType({
+                    ...data,
+                    id: storedTask.id,
+                }, {
                     source: attribute.source,
                     type: "update"
                 })

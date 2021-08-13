@@ -2,7 +2,8 @@ import { NOTION_TOKEN } from ".";
 import Notion from "../src/connectors/notion";
 import { NotionDb, NotionDbType, NotionServerSingleTaskResponse, NotionTask, NotionTaskCreate, NotionTaskUpdate } from "../src/types/notion";
 import { Priority } from "../src/types/task";
-
+import { fromNow } from "./utils";
+import {firestore} from "firebase-admin";
 
 const notion = new Notion(NOTION_TOKEN);
 
@@ -17,7 +18,7 @@ describe("test NotionConnector & NotionAPI", () => {
             priority: Priority.P3,
             section: "section1",
             parent: "parentID",
-            last_edited: new Date()
+            last_edited: fromNow().toDate()
         };
 
         it("converts Task to accepted NotionAPI format", () => {
@@ -77,7 +78,7 @@ describe("test NotionConnector & NotionAPI", () => {
                     last_edited: {
                         id: "dsdzd",
                         type: "last_edited_time",
-                        last_edited_time: (new Date()).toISOString(),
+                        last_edited_time: fromNow().toDate().toISOString(),
                     }
                 }
             }, task.parent);
@@ -107,7 +108,9 @@ describe("test NotionConnector & NotionAPI", () => {
         if (Math.random() >= 0.5) task.priority = Priority.P3;
         if (Math.random() >= 0.5) task.section = "section1";
 
-        const lastRecentDate = new Date(Date.now() - 100000);
+
+        const lastRecentDate = fromNow(-10000);
+
         const db: NotionDb = {
             id: task.parent,
             lastRecentDate,
@@ -138,12 +141,13 @@ describe("test NotionConnector & NotionAPI", () => {
             expect(page.labels).toEqual(task.labels);
             expect(page.done).toEqual(task.done);
 
-            db.lastRecentDate = page.last_edited as Date;
+            db.lastRecentDate = firestore.Timestamp.fromDate(page.last_edited as Date);
+
 
 
         })
         it("check for new Tasks when it doesn't exits", async () => {
-            const lastRecentDate = new Date(Date.now() + 100000);
+            const lastRecentDate = fromNow(1);
 
             const pages = await notion.checkForNewTasks({
                 ...db,

@@ -11,7 +11,7 @@ export enum NotionDbType {
 export type NotionDb = {
     id: string;
     type: NotionDbType
-    lastRecentDate: Date;
+    lastRecentDate: FirebaseFirestore.Timestamp;
 }
 
 

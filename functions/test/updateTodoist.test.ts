@@ -37,12 +37,12 @@ const user: User = {
         {
             id: "64559c948e28454082785ccb2bc6b6a5",
             type: NotionDbType.TASK,
-            lastRecentDate: new Date(),
+            lastRecentDate: fromNow(),
         },
         {
             id: "589d99703060439ea3b6c2202ded5992",
             type: NotionDbType.THOUGHT,
-            lastRecentDate: new Date(),
+            lastRecentDate: fromNow(),
         },
     ],
     todoistLabel: {
@@ -112,7 +112,7 @@ describe("todoist should reflect the exact state of other services", () => {
             await firestore.clear();
         });
         it("ensures both Todoist & Notion IDs exists", async () => {
-            const p1 = user.todoistProjects[0];
+            const p1 = user.todoistProjects[0] as [string, string];
 
             await firestore.saveNewTask(p1, "nabil");
 
@@ -161,7 +161,7 @@ describe("todoist should reflect the exact state of other services", () => {
                 )
             ).resolves;
             await pause();
-            const tasks = await todoist.checkForNewTask(fromNow());
+            const tasks = await todoist.checkForNewTask(fromNow().toDate());
 
             expect(tasks.length).toBeGreaterThanOrEqual(1);
             const task = tasks.find((t) => t.id == id);
@@ -210,7 +210,7 @@ describe("todoist should reflect the exact state of other services", () => {
                 }
             })
 
-            const tasks = await todoist.checkForNewTask(fromNow(-1));
+            const tasks = await todoist.checkForNewTask(fromNow(-1).toDate());
 
             const lastTask = tasks.find(t => t.content == randomTitle);
             expect(lastTask).toBeTruthy();
@@ -234,7 +234,7 @@ describe("todoist should reflect the exact state of other services", () => {
                 }
             })
 
-            const tasks = await todoist.checkForNewTask(fromNow(-1));
+            const tasks = await todoist.checkForNewTask(fromNow(-1).toDate());
 
             const lastTask = tasks.find(t => t.content == randomTitle);
             expect(lastTask).toBeTruthy();

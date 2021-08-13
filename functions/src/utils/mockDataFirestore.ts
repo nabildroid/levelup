@@ -2,7 +2,7 @@ import FirestoreConnector from "../connectors/firestore";
 import { NotionDbType } from "../types/notion";
 import { StoredTask, NTID } from "../types/task";
 import { User } from "../types/user";
-
+import { fromNow, randomNotionID, randomTodoistID } from "../../test/utils";
 export default async (db: FirestoreConnector) => {
     console.log(process.env.NOTION_TOKEN);
 
@@ -33,7 +33,7 @@ export function createUser(): User {
             {
                 id: "a29912913c7a4357a43938f0f6f0ccf5",
                 type: NotionDbType.TASK,
-                lastRecentDate: new Date("2020-03-17T21:49:37.913Z"),
+                lastRecentDate: fromNow(-1000000),
             },
         ],
         todoistLabel: {
@@ -48,9 +48,8 @@ export function createUser(): User {
     };
 }
 
-function generateRandomNTID(): NTID {
-    const randA = Math.random().toString().slice(2);
-    const randB = Math.random().toString().slice(2);
+function generateRandomNTID(): [string, string] {
 
-    return [randA, randB];
+
+    return [randomNotionID(), randomTodoistID()];
 }

@@ -5,6 +5,7 @@ import { NotionDbType } from "../src/types/notion";
 import { PubsubInsertTaskAttributes } from "../src/types/pubsub";
 import { Task } from "../src/types/task";
 import { User } from "../src/types/user";
+import { fromNow } from "./utils";
 
 
 const notion = new Notion(NOTION_TOKEN);
@@ -32,7 +33,7 @@ describe("test if isNotionUpdated sends pubsub events", () => {
             notionDB: [{
                 id: "e7524bb3b85c48bab8e7a8cf10b81ea8",
                 type: NotionDbType.TASK,
-                lastRecentDate: new Date(Date.now() - 100000000000)
+                lastRecentDate: fromNow(-1000000)
             }],
             todoistLabel: {},
             todoistProjects: []
@@ -56,7 +57,7 @@ describe("test if isNotionUpdated sends pubsub events", () => {
             notionDB: [{
                 id: "e7524bb3b85c48bab8e7a8cf10b81ea8",
                 type: NotionDbType.TASK,
-                lastRecentDate: new Date()
+                lastRecentDate: fromNow()
             }],
             todoistLabel: {},
             todoistProjects: []

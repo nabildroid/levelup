@@ -1,0 +1,22 @@
+{
+    "isNotionUpdated": {
+        "state": "private",
+        "runEvery": "* 6-23 * * *",
+        "serviceAccount": "deployment@levelup-automation.iam.gserviceaccount.com"
+    },
+    "findWhere": {},
+    "validateTask": {},
+    "updateNotion": {
+        "state": "private",
+        "topic": "detected_task_event",
+        "filter": "attributes.source != \"notion\" OR attributes.type = \"uncomplete\" ",
+        "serviceAccount": "deployment@levelup-automation.iam.gserviceaccount.com"
+    },
+    "updateTodoist": {
+        "state": "private",
+        "topic": "detected_task_event",
+        "filter": "attributes.source != \"todoist\" OR attributes.type = \"uncomplete\" ",
+        "serviceAccount": "deployment@levelup-automation.iam.gserviceaccount.com"
+    },
+    "todoistWebhook": {}
+}
