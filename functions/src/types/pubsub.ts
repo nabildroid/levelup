@@ -1,4 +1,4 @@
-import { NTID, Task } from "./task"
+import { NewTask, NTID, Task, UpdateTask } from "./task"
 
 export enum PubsubSources {
     Notion = "notion",
@@ -23,8 +23,8 @@ export type PubsubValidateTaskAttributes = {
 
 
 export type PubsubDetectedEventTypeMessageType = {
-    new: Task,
-    update: Partial<Task>,
+    new: NewTask,
+    update: UpdateTask,
     complete: NTID,
     uncomplete: NTID,
 }
