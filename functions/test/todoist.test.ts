@@ -2,18 +2,16 @@ import { TODOIST_TOKEN } from ".";
 import TodoistConnector from "../src/connectors/todoist";
 import { Priority } from "../src/types/task";
 import { fromPriority } from "../src/utils/general";
+import { fromNow } from "./utils";
 
 
 const todoist = new TodoistConnector(TODOIST_TOKEN);
-
-
 
 
 it("creates a new todoist task", async () => {
     const randomTitle = Math.random().toString();
     const task = await todoist.createTask({
         content: randomTitle,
-        labels: [],
         priority: fromPriority(Priority.P2),
     });
 
@@ -24,6 +22,15 @@ it("creates a new todoist task", async () => {
     expect(task.section_id).toBeFalsy();
 
     expect.setState({ id: task.id });
+});
+
+
+it("checkes for new Tasks",async ()=>{
+    const pages =await todoist.checkForNewTask(fromNow());
+
+    const prevTaskExists = pages.some(pages=>pages.id == expect.getState().id);
+
+    expect(prevTaskExists).toBeTruthy();
 });
 
 it("updates a task", async () => {
@@ -48,8 +55,8 @@ it("creates a new label", async () => {
     const labels = [Math.random().toString(), Math.random().toString()];
 
 
-    await todoist.createLabel(labels[0]);
-    await todoist.createLabel(labels[1]);
+    expect(await todoist.createLabel(labels[0])).resolves;
+    expect(await todoist.createLabel(labels[1])).resolves;
 
     expect.setState({ labels });
 })
@@ -61,6 +68,4 @@ it("gets all labels", async () => {
 
     expect(fetchedLables).toContainEqual(labels[0]);
     expect(fetchedLables).toContainEqual(labels[1]);
-
-
 })

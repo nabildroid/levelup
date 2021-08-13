@@ -17,9 +17,29 @@ export interface Task {
     title: string;
     descrption?: string;
     priority?: Priority;
-    labels: string[];
+    labels: (string | number)[];
     section?: string;
     done: boolean;
+}
+
+export interface NewTask {
+    parent: NTID; // composed ID (notion_todoist)
+    id: NTID; // required because a Task first got created by either Notion or Todoist and we need to sync that with the other service
+    title: string;
+    descrption?: string;
+    priority?: Priority;
+    labels?: (string | number)[];
+    section?: string;
+}
+
+export interface UpdateTask {
+    id: [string, string];
+    title?: string;
+    descrption?: string;
+    priority?: Priority;
+    labels?: (string | number)[];
+    section?: string;
+    done?: boolean;
 }
 
 /**

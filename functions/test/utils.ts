@@ -19,6 +19,17 @@ export const getEventByID = (events: { data: any, attributes: any }[], id: strin
     }) as { data: any, attributes: any }
 }
 
-export const pause = async (seconds = 1) => new Promise(res =>
-    setTimeout(res, seconds * 1000)
-);
+export const pause = (seconds = 1) => {
+    return new Promise((res) => {
+        setTimeout(res, seconds * 1000);
+    })
+}
+
+export const randomNotionID = () => {
+    const r = Math.random().toString().slice(3, 8);
+    return `589d997030${r}ea3b6c2202ded599dd2`;
+}
+
+export const randomTodoistID = () => {
+    return Math.floor(Math.random() * 10000000).toString();
+}

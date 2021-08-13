@@ -6,15 +6,14 @@ import {
     updateTask,
 } from "../src/utils/notionUtils";
 
-import { translateTodoistLabels } from "../src/utils/todoistUtils";
 
 import { NotionDbType } from "../src/types/notion";
 import { User } from "../src/types/user";
 import { firestore, pubscriber } from ".";
 import Notion from "../src/connectors/notion";
-import { fromNow, pause } from "./utils";
+import { fromNow, pause, randomNotionID, randomTodoistID } from "./utils";
 import { NOTION_TOKEN } from ".";
-import { Task } from "../src/types/task";
+import { NewTask, Task, UpdateTask } from "../src/types/task";
 import { PubsubDetectedEventTypeAttributes, PubsubSources } from "../src/types/pubsub";
 import { getFullNTID } from "../src/utils/general";
 
@@ -96,23 +95,7 @@ describe("notion should reflect the exact state of other services", () => {
             }
         });
 
-        it("translatse TodoistLabels IDs to strings", () => {
-            const labels = user.todoistLabel;
-            const labelStrings = Object.values(labels);
-            const labelIds = Object.keys(labels);
 
-            labelIds.forEach((l) => {
-                expect(
-                    translateTodoistLabels(user, labelStrings)
-                ).toContainEqual(l);
-            });
-
-            labelStrings.forEach((l) => {
-                expect(translateTodoistLabels(user, labelIds)).toContainEqual(
-                    l
-                );
-            });
-        });
     });
 
     describe("firebase related helper functions", () => {
@@ -137,11 +120,9 @@ describe("notion should reflect the exact state of other services", () => {
         it("creates new Task", async () => {
             const { id } = await newTask(
                 {
-                    done: false,
                     parent: ["fec204bf56ec4abd958654fe93222ec5"],
                     title: "hello world",
-                    labels: ["test"],
-                    id: [""],
+                    id: [randomTodoistID()],
                 },
                 user,
                 notion
@@ -155,17 +136,17 @@ describe("notion should reflect the exact state of other services", () => {
 
             const randomTitle = Math.random().toString();
 
-            expect(
+            await expect(
                 updateTask(
                     {
-                        id: [id, "idsudus"],
+                        id: [id, randomTodoistID()],
                         title: randomTitle,
                     },
                     notion
                 )
             ).resolves;
 
-            const tasks = await notion.checkForNewTask({
+            const tasks = await notion.checkForNewTasks({
                 id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-1),
                 type: NotionDbType.TASK,
@@ -174,6 +155,9 @@ describe("notion should reflect the exact state of other services", () => {
             expect(tasks.length).toBeGreaterThanOrEqual(1);
             expect(tasks.some((t) => t.id == id)).toBeTruthy();
         });
+
+        it.todo("creates new Thought / inbox");
+
     });
 
     describe("updateNotion service", () => {
@@ -182,6 +166,12 @@ describe("notion should reflect the exact state of other services", () => {
             await firestore.createUser(user);
 
             const randomTitle = Math.random().toString();
+            const newTask: NewTask = {
+                id: ["TODOIST_ID"],
+                parent: ["project2"],
+                labels: [81797],
+                title: randomTitle,
+            }
 
             const detatch = await pubscriber.attatchUpdateNotion(path);
             await pubscriber.client.detectedEventType({
@@ -197,7 +187,7 @@ describe("notion should reflect the exact state of other services", () => {
             await pause(3);
             await detatch();
 
-            const tasks = await notion.checkForNewTask({
+            const tasks = await notion.checkForNewTasks({
                 id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-1),
                 type: NotionDbType.TASK,
@@ -207,10 +197,18 @@ describe("notion should reflect the exact state of other services", () => {
             expect(lastTask).toBeTruthy();
             expect(lastTask?.labels).toContainEqual(user.todoistLabel[81797])
             expect.setState({ id: lastTask?.id })
+
+          
         });
 
         it("updates new Task", async () => {
             const randomTitle = Math.random().toString();
+            const updatesTask: UpdateTask = {
+                id: [randomTodoistID(), expect.getState().id],
+                labels: [1522, 81797],
+                title: randomTitle,
+                done:true,
+            }
 
             const detatch = await pubscriber.attatchUpdateNotion(path);
             await pubscriber.client.detectedEventType({
@@ -220,17 +218,16 @@ describe("notion should reflect the exact state of other services", () => {
             }, {
                 source: PubsubSources.Todoist,
                 type: "update"
+
             })
             await pause(3);
             await detatch();
 
-            const tasks = await notion.checkForNewTask({
+            const tasks = await notion.checkForNewTasks({
                 id: "fec204bf56ec4abd958654fe93222ec5",
                 lastRecentDate: fromNow(-2),
                 type: NotionDbType.TASK,
             });
-
-            console.log(tasks);
 
             const lastTask = tasks.find(t => t.title == randomTitle);
             expect(lastTask).toBeTruthy();

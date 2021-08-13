@@ -28,7 +28,7 @@ export const fromPriority = (priority?: Priority): number => {
 
 
 
-export const getFullNTID = (user: User, id: NTID): NTID => {
+export const getFullNTID = (user: User, id: [string?, string?]): NTID => {
     const { todoistProjects } = user;
 
     const [firstId] = id;
@@ -50,7 +50,7 @@ export const getFullNTID = (user: User, id: NTID): NTID => {
         secondId = thoughtDB?.id;
     }
 
-    return [firstId, secondId];
+    return [firstId, secondId].filter(a => a) as NTID;
 };
 
 

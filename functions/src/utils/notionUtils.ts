@@ -1,7 +1,7 @@
 import FirestoreConnector from "../connectors/firestore";
 import Notion from "../connectors/notion";
 import { NotionDbType } from "../types/notion";
-import { NTID, Task } from "../types/task";
+import { NewTask, NTID, Task, UpdateTask } from "../types/task";
 import { User } from "../types/user";
 import { getFullNTID } from "./general";
 
@@ -9,16 +9,22 @@ import { getFullNTID } from "./general";
 
 
 // required the parent ID
-export const newTask = async (task: Task, user: User, notion: Notion) => {
+export const newTask = async (task: NewTask, user: User, notion: Notion) => {
     const fullNTID = getFullNTID(user, task.parent);
 
-    const parentId = extractNotionIdfromNTID(fullNTID) as string;
+    const parentId = extractNotionIdfromNTID(fullNTID);
+
+    if (!parentId) {
+        throw Error("couldn't create Notion Task without having the parent's ID " + JSON.stringify(task.parent));
+    }
 
     const response = await notion.createTask({
         ...task,
+        labels: (task?.labels as string[]) ?? [],
+        done: false,
         parent: parentId,
-        id: task.id[0], // todo useless information
     });
+
     const { id, last_edited_time } = response;
     // todo  response.last_edited_time must be saved withing the user stuff!
 
@@ -27,15 +33,19 @@ export const newTask = async (task: Task, user: User, notion: Notion) => {
 
 // todo remove Notion dependency from arguments
 export const updateTask = async (
-    task: Partial<Task> & { id: [string, string] },
+    task: UpdateTask,
     notion: Notion
 ) => {
-    const id = extractNotionIdfromNTID(task.id) as string;
+    const id = extractNotionIdfromNTID(task.id);
+
+    if (!id) {
+        throw Error("couldn't update Todoist Task without having an ID " + JSON.stringify(task.id));
+    }
 
     const response = await notion.updateTask({
         ...task,
         id,
-        parent: undefined,
+        labels: (task?.labels as string[]) ?? []
     });
 
     const { last_edited_time } = response;
@@ -59,3 +69,5 @@ export const ensureNotionTaskIdExists = async (
 export const extractNotionIdfromNTID = (id: NTID) => {
     return id[0].length > 30 ? id[0] : id[1];
 };
+
+
