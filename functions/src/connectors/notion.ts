@@ -62,7 +62,7 @@ export default class Notion implements INotion {
         }) as NotionServerTaskDBReponse;
 
         return database.results.map(
-            page => Notion.convertNotionTaskPageToNotionTask(page, db)
+            page => Notion.convertSingleTaskPageResponseToNotionTask(page, db.id)
         ).filter(({ last_edited }) => !last_edited || last_edited >= db.lastRecentDate.toDate())
 
     }
