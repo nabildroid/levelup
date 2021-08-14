@@ -28,7 +28,8 @@ steps:
     id: e2e testing
     args:
       - run
-      - test-e2e
+      - emulators-test-e2e
+    secretEnv: ['NOTION_TOKEN', 'TODOIST_TOKEN']
     dir: functions
     waitFor:
       - build
@@ -55,3 +56,10 @@ steps:
         apt update && apt install jq -y 
         chmod a+x ./scripts/setupFunctions.sh
         ./scripts/setupFunctions.sh
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/$PROJECT_NUMBER/secrets/NOTION_TOKEN/versions/1
+    env: 'NOTION_TOKEN'
+  - versionName: projects/$PROJECT_NUMBER/secrets/TODOIST_TOKEN/versions/1
+    env: 'TODOIST_TOKEN'
