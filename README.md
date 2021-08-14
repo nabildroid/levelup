@@ -9,3 +9,8 @@ learn, create, get things done, memories, and gain XPs
 
 
 **Never relay on your will power, work on improving the dialy score**
+
+
+
+# Code Dependency
+![Code Dependency](https://storage.googleapis.com/levelup-automation.appspot.com/deployment/dependency.png)
