@@ -24,8 +24,9 @@ steps:
     waitFor:
       - install
 
-  - name: gcr.io/cloud-builders/npm
+  - name: gcr.io/$PROJECT_ID/firebase
     id: e2e testing
+    entrypoint: npm
     args:
       - run
       - emulators-test-e2e
