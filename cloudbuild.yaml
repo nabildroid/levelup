@@ -58,6 +58,25 @@ steps:
         chmod a+x ./scripts/setupFunctions.sh
         ./scripts/setupFunctions.sh
 
+  - name: gcr.io/cloud-builders/npm
+    id: "generate dependency graph"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        apt update && apt-get install graphviz -y 
+        npm i -g madge
+        madge functions/src/** -i dependency.png
+  
+  - name: gcr.io/cloud-builders/gsutil
+    id: "upload dependency graph"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gsutil mv dependency.png gs://$PROJECT_ID.appspot.com/deployment
+        gsutil acl ch -u AllUsers:R  gs://levelup-automation.appspot.com/deployment/dependency.png
+
 availableSecrets:
   secretManager:
   - versionName: projects/$PROJECT_NUMBER/secrets/NOTION_TOKEN/versions/1
