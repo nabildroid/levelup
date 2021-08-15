@@ -1,4 +1,4 @@
-enum RewardType{
+enum RewardType {
     TASK_DONE,
     TASK_CREATED,
     TASK_PLANNING,
@@ -6,10 +6,10 @@ enum RewardType{
     ONE_POMODORO,
 }
 
-interface Reward{
-    id:string;
-    value:number;
-    type:RewardType;
-    message:string;
-    created:Date;
+interface Reward {
+    id: string;
+    value: number;
+    type: RewardType;
+    message: string;
+    created: Date;
 }

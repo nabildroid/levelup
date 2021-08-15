@@ -53,5 +53,5 @@ export interface UpdateTask {
 export interface StoredTask {
     id: [string, string];
     user: string;
-    completed: boolean
+    completed: boolean;
 }

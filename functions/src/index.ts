@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import FirestoreConnector from "./connectors/firestore";
 import isDev from "./utils/isDev";
 
-
 dotenv.config();
 admin.initializeApp();
 

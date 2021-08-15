@@ -24,21 +24,24 @@ export default functions.pubsub
             } else {
                 const task = {
                     ...data,
-                    id: storedTask.id
+                    id: storedTask.id,
                 };
                 return publishUpdateTask(task, attribute);
             }
         }
     });
 
-const publishNewTask = (task: Task, attributes: PubsubInsertTaskAttributes) => pubsub.detectedEventType(task, {
-    source: attributes.source,
-    type: "new"
-})
+const publishNewTask = (task: Task, attributes: PubsubInsertTaskAttributes) =>
+    pubsub.detectedEventType(task, {
+        source: attributes.source,
+        type: "new",
+    });
 
-const publishUpdateTask = (task: Task & { id: [string, string] }, attributes: PubsubInsertTaskAttributes) => pubsub.detectedEventType(task, {
-    source: attributes.source,
-    type: "update"
-})
-
-
+const publishUpdateTask = (
+    task: Task & { id: [string, string] },
+    attributes: PubsubInsertTaskAttributes
+) =>
+    pubsub.detectedEventType(task, {
+        source: attributes.source,
+        type: "update",
+    });

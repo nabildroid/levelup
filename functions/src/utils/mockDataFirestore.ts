@@ -11,8 +11,7 @@ export default async (db: FirestoreConnector) => {
     Array(10)
         .fill(null)
         .map(createStoredTask)
-        .forEach(task => db.saveNewTask(task.id, task.user));
-
+        .forEach((task) => db.saveNewTask(task.id, task.user));
 };
 
 function createStoredTask(): StoredTask {
@@ -43,13 +42,11 @@ export function createUser(): User {
         todoistProjects: [
             ["1525221", "a29912913c7a4357a43938f0f6f0ccf5"],
             ["1525221", "a29912913c7a4357a43938f0f6f0ccf5"],
-            ["1525221", "a29912913c7a4357a43938f0f6f0ccf5"]
-        ]
+            ["1525221", "a29912913c7a4357a43938f0f6f0ccf5"],
+        ],
     };
 }
 
 function generateRandomNTID(): [string, string] {
-
-
     return [randomNotionID(), randomTodoistID()];
 }

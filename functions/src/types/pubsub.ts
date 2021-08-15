@@ -1,4 +1,4 @@
-import { NewTask, NTID, Task, UpdateTask } from "./task"
+import { NewTask, NTID, Task, UpdateTask } from "./task";
 
 export enum PubsubSources {
     Notion = "notion",
@@ -8,23 +8,22 @@ export enum PubsubSources {
 }
 
 export type PubsubDetectedEventTypeMessageType = {
-    new: NewTask,
-    update: UpdateTask,
-    complete: { id: NTID },
-    uncomplete: { id: NTID },
-}
+    new: NewTask;
+    update: UpdateTask;
+    complete: { id: NTID };
+    uncomplete: { id: NTID };
+};
 
 // Pubsub Topic Attributes
 export type PubsubInsertTaskAttributes = {
-    source: PubsubSources
-}
+    source: PubsubSources;
+};
 
 export type PubsubDetectedEventTypeAttributes = {
-    type: keyof PubsubDetectedEventTypeMessageType,
-    source: PubsubSources,
-}
-
+    type: keyof PubsubDetectedEventTypeMessageType;
+    source: PubsubSources;
+};
 
 export type PubsubValidateTaskAttributes = {
-    source: PubsubSources,
-}
+    source: PubsubSources;
+};

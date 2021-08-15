@@ -5,9 +5,6 @@ import { NewTask, NTID, Task, UpdateTask } from "../types/task";
 import { User } from "../types/user";
 import { getFullNTID } from "./general";
 
-
-
-
 // required the parent ID
 export const newTask = async (task: NewTask, user: User, notion: Notion) => {
     const fullNTID = getFullNTID(user, task.parent);
@@ -15,7 +12,10 @@ export const newTask = async (task: NewTask, user: User, notion: Notion) => {
     const parentId = extractNotionIdfromNTID(fullNTID);
 
     if (!parentId) {
-        throw Error("couldn't create Notion Task without having the parent's ID " + JSON.stringify(task.parent));
+        throw Error(
+            "couldn't create Notion Task without having the parent's ID " +
+                JSON.stringify(task.parent)
+        );
     }
 
     const response = await notion.createTask({
@@ -32,20 +32,20 @@ export const newTask = async (task: NewTask, user: User, notion: Notion) => {
 };
 
 // todo remove Notion dependency from arguments
-export const updateTask = async (
-    task: UpdateTask,
-    notion: Notion
-) => {
+export const updateTask = async (task: UpdateTask, notion: Notion) => {
     const id = extractNotionIdfromNTID(task.id);
 
     if (!id) {
-        throw Error("couldn't update Todoist Task without having an ID " + JSON.stringify(task.id));
+        throw Error(
+            "couldn't update Todoist Task without having an ID " +
+                JSON.stringify(task.id)
+        );
     }
 
     const response = await notion.updateTask({
         ...task,
         id,
-        labels: (task?.labels as string[]) ?? []
+        labels: (task?.labels as string[]) ?? [],
     });
 
     const { last_edited_time } = response;
@@ -69,5 +69,3 @@ export const ensureNotionTaskIdExists = async (
 export const extractNotionIdfromNTID = (id: NTID) => {
     return id[0].length > 30 ? id[0] : id[1];
 };
-
-

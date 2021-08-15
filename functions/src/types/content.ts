@@ -1,4 +1,3 @@
-
 enum SourceType {
     POCKET,
     NOTION,
@@ -7,10 +6,10 @@ enum SourceType {
 }
 
 interface Content {
-    id: string,
-    data: string,
-    sourceType: SourceType,
-    sourceLink: string,
-    tags?: string[],
-    created:String;
+    id: string;
+    data: string;
+    sourceType: SourceType;
+    sourceLink: string;
+    tags?: string[];
+    created: String;
 }
