@@ -3,7 +3,6 @@ import { firestore } from "..";
 import TodoistConnector from "../connectors/todoist";
 import {
     PubsubDetectedEventTypeAttributes,
-    PubsubSources,
 } from "../types/pubsub";
 import { NTID, Task } from "../types/task";
 import { extractAttributeAndBodyfromPubsubMessage } from "../utils/general";

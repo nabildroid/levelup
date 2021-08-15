@@ -7,11 +7,9 @@ import { Task } from "../types/task";
 
 const { INSERT_TASK } = PubSubConnector.pubsubTopics;
 
-console.log(INSERT_TASK);
-
 export default functions.pubsub
     .topic(INSERT_TASK)
-    .onPublish(async (message, context) => {
+    .onPublish(async (message) => {
         const attribute = message.attributes as PubsubInsertTaskAttributes;
         const data = message.json as Task;
 

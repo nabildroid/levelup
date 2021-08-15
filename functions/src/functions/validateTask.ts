@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import { pubsub } from "..";
 import PubSubConnector from "../connectors/pubsub";
-import { PubsubInsertTaskAttributes, PubsubValidateTaskAttributes } from "../types/pubsub";
+import { PubsubValidateTaskAttributes } from "../types/pubsub";
 import { NTID } from "../types/task";
 
 const { VALIDATE_TASK } = PubSubConnector.pubsubTopics;
@@ -16,12 +16,12 @@ export default functions.pubsub
         const isValide = await stillRemainingPomodoros(id);
 
         if (isValide) {
-            pubsub.detectedEventType({id}, {
+            pubsub.detectedEventType({ id }, {
                 source: attribute.source,
                 type: "complete"
             })
         } else {
-            pubsub.detectedEventType({id}, {
+            pubsub.detectedEventType({ id }, {
                 source: attribute.source,
                 type: "uncomplete"
             })
