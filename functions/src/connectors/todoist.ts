@@ -1,6 +1,5 @@
 import axios, { AxiosInstance } from "axios";
 import { TodoistNewTask, TodoistTask, TodoistTaskUpdate } from "../types/todoist";
-import { dateAcceptedByTodoist } from "../utils/todoistUtils";
 
 export default class TodoistConnector {
 

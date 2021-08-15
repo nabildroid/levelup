@@ -3,7 +3,6 @@ import { NTID, Priority } from "../types/task";
 import { User } from "../types/user";
 
 export const toPriority = (priority: string | number | undefined): Priority => {
-    console.log("priority", priority)
     if (!priority)
         return Priority.P3;
 
@@ -62,4 +61,15 @@ export const nestedArrayToObject = (arr: any[][]) => {
 
 export const objectToNestedArray = (obj: { [key: number]: any[] }) => {
     return Object.values(obj).reduce((arr, val) => [...arr, val], []);
+}
+
+
+
+export const extractAttributeAndBodyfromPubsubMessage = (PubsubMessage: any) => {
+    const message = PubsubMessage as { attributes: object, data: string };
+
+    const attributes = message.attributes
+    const rawBody = Buffer.from(message.data, 'base64').toString('utf-8'); const body = JSON.parse(rawBody)
+
+    return { body, attributes };
 }

@@ -18,26 +18,29 @@ export default functions.pubsub
         const storedTask = await firestore.getStoredTask(data.id);
 
         if (!storedTask) {
-            pubsub.detectedEventType(data, {
-                source: attribute.source,
-                type: "new"
-            })
+            return publishNewTask(data, attribute);
         } else {
-            if (!storedTask.completed && data.done) {
-                pubsub.validateTask(storedTask.id, attribute.source);
-
+            const isTaskValide = !storedTask.completed && data.done;
+            if (isTaskValide) {
+                return pubsub.validateTask(storedTask.id, attribute.source);
             } else {
-                pubsub.detectedEventType({
+                const task = {
                     ...data,
-                    id: storedTask.id,
-                }, {
-                    source: attribute.source,
-                    type: "update"
-                })
+                    id: storedTask.id
+                };
+                return publishUpdateTask(task, attribute);
             }
         }
     });
 
+const publishNewTask = (task: Task, attributes: PubsubInsertTaskAttributes) => pubsub.detectedEventType(task, {
+    source: attributes.source,
+    type: "new"
+})
 
+const publishUpdateTask = (task: Task & { id: [string, string] }, attributes: PubsubInsertTaskAttributes) => pubsub.detectedEventType(task, {
+    source: attributes.source,
+    type: "update"
+})
 
 

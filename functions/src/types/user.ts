@@ -4,6 +4,7 @@ import { NTID } from "./task";
 
 
 export type User = {
+    id?: string;
     auth: {
         notion: string,
         todoist: string,

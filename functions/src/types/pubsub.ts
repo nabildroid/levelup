@@ -7,6 +7,14 @@ export enum PubsubSources {
     Pocket = "pocket",
 }
 
+export type PubsubDetectedEventTypeMessageType = {
+    new: NewTask,
+    update: UpdateTask,
+    complete: { id: NTID },
+    uncomplete: { id: NTID },
+}
+
+// Pubsub Topic Attributes
 export type PubsubInsertTaskAttributes = {
     source: PubsubSources
 }
@@ -20,14 +28,3 @@ export type PubsubDetectedEventTypeAttributes = {
 export type PubsubValidateTaskAttributes = {
     source: PubsubSources,
 }
-
-
-export type PubsubDetectedEventTypeMessageType = {
-    new: NewTask,
-    update: UpdateTask,
-    complete: { id: NTID },
-    uncomplete: { id: NTID },
-}
-
-
-

@@ -1,4 +1,4 @@
-import { PubSub, Topic } from "@google-cloud/pubsub";
+import { PubSub } from "@google-cloud/pubsub";
 import { PubsubDetectedEventTypeAttributes, PubsubSources, PubsubInsertTaskAttributes, PubsubValidateTaskAttributes, PubsubDetectedEventTypeMessageType } from "../types/pubsub";
 import { NTID, Task } from "../types/task";
 import isDev from "../utils/isDev";
@@ -7,16 +7,10 @@ import isDev from "../utils/isDev";
 export default class PubSubConnector {
     private client: PubSub;
 
-    static createTopicName(name: string) {
-        const projectId = process.env.PROJECT_ID || "";
-        return `${name}`;
-    }
-
     static readonly pubsubTopics = {
-        INSERT_TASK: PubSubConnector.createTopicName("insert_task"),
-        DETECTED_TASK_EVENT: PubSubConnector.createTopicName("detected_task_event"),
-        VALIDATE_TASK: PubSubConnector.createTopicName("validate_task"),
-
+        INSERT_TASK: "insert_task",
+        DETECTED_TASK_EVENT: "detected_task_event",
+        VALIDATE_TASK: "validate_task",
     }
 
     getTopic(name: keyof typeof PubSubConnector.pubsubTopics) {
@@ -36,24 +30,9 @@ export default class PubSubConnector {
         }
     }
 
-    notionInsertTask(task: Task) {
-        console.log("[PUBSUB] publishing new sign of change " + task.id);
-
-
-        this.insertTask(task, PubsubSources.Notion);
-    }
-
-    // an alternative to webhook
-    // https://www.notion.so/laknabil/FC-isTodoistUpdated-475aa250f1724f59ac1b98b9a66389df
-    todoistInsertTask(task: Task) {
-        console.log("[PUBSUB] publishing new sign of change " + task.id);
-
-
-        this.insertTask(task, PubsubSources.Todoist);
-    }
-
+    
     // todo use this function publicly insteam of todoistInsertTask ..
-    private insertTask(task: Task, source: PubsubSources) {
+    insertTask(task: Task, source: PubsubSources) {
         const attribute: PubsubInsertTaskAttributes = {
             source
         };

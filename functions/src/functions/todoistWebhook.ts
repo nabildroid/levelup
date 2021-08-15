@@ -11,33 +11,34 @@ import { toPriority } from "../utils/general";
 export default functions.https.onRequest(async (req, res) => {
 
     const { event_data, event_name } = req.body as TodoistWebhook;
-
-    const { checked, id, labels, content, priority, project_id, section_id } = event_data;
-
-    const task: Task = {
-        id: [id.toString()],
-        done: checked || false,
-        parent: [project_id.toString()],
-        labels: labels.map(v => v.toString()),
-        title: content,
-        priority: toPriority(priority),
-        section: section_id?.toString()
-    }
+    const task = convertEventDataToTask(event_data);
 
     if (event_name == TodoistWebhookType.NewTask) {
         await pubsub.detectedEventType(task, {
             source: PubsubSources.Todoist,
             type: "new"
         })
+
     } else if (event_name == TodoistWebhookType.UpdatedTask) {
-        //https://www.notion.so/laknabil/Todoist-Webhook-update-is-Sending-the-task-to-FindWhere-instead-of-DetectedTaskEvent-1e2aed48c4a14997aa6dfe8a19b4825e
-        await pubsub.todoistInsertTask(task);
+        await pubsub.insertTask(task, PubsubSources.Todoist);
+
     } else if (event_name == TodoistWebhookType.CompletedTask) {
         await pubsub.validateTask(task.id, PubsubSources.Todoist)
-    } else {
 
-        console.log("unsuppored event name");
+    } else {
+        console.error(`unsuppored event name [${event_name}]`);
     }
 
     res.send("done");
+});
+
+
+const convertEventDataToTask = (event_data: TodoistWebhook["event_data"]): Task => ({
+    id: [event_data.id.toString()],
+    done: !!event_data.checked,
+    parent: [event_data.project_id.toString()],
+    labels: event_data.labels.map(toString),
+    title: event_data.content,
+    priority: toPriority(event_data.priority),
+    section: event_data.section_id?.toString()
 });
