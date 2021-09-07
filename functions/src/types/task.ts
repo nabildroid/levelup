@@ -39,7 +39,6 @@ export interface UpdateTask {
     priority?: Priority;
     labels?: (string | number)[];
     section?: string;
-    done?: boolean;
 }
 
 /**
@@ -54,4 +53,12 @@ export interface StoredTask {
     id: [string, string];
     user: string;
     completed: boolean;
+}
+
+export interface ITaskRepository {
+    create(newTask: NewTask): Promise<Task>;
+    update(updatedTask: UpdateTask): Promise<boolean>;
+    fetch(parent: String, lastRecentDate: FirebaseFirestore.Timestamp): Promise<Task[]>
+    close(id: string): Promise<boolean>;
+    reopen(id: string): Promise<boolean>;
 }

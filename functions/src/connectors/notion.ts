@@ -11,11 +11,8 @@ import {
 } from "../types/notion";
 import { toPriority } from "../utils/general";
 
-export interface INotion {
-    checkForNewTasks: (db: NotionDb) => Promise<NotionTask[]>;
-}
 
-export default class Notion implements INotion {
+export default class Notion{
     private client: Client;
 
     constructor(auth: string) {
@@ -32,7 +29,7 @@ export default class Notion implements INotion {
         });
     }
 
-    async updateTask(task: NotionTaskUpdate) {
+    protected async updateTask(task: NotionTaskUpdate) {
         return this.client.pages.update({
             page_id: task.id,
             properties:
@@ -41,14 +38,14 @@ export default class Notion implements INotion {
         });
     }
 
-    async createTask(task: NotionTaskCreate) {
+    protected async createTask(task: NotionTaskCreate) {
         return this.createPage(
             Notion.convertNotionTaskToSingleTaskPageProperties(task),
             task.parent
         );
     }
 
-    async checkForNewTasks(db: NotionDb): Promise<NotionTask[]> {
+    protected async checkForNewTasks(db: NotionDb): Promise<NotionTask[]> {
         if (db.type != NotionDbType.TASK)
             throw Error(`${db.id} is not of type Tasks`);
 
